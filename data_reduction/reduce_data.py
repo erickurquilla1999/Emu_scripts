@@ -31,6 +31,7 @@ do_fft     = False
 do_angular = True
 
 do_MPI = False
+output_base = "plt"
 
 #####################
 # FFT preliminaries #
@@ -91,18 +92,46 @@ def fft_power(fft, cleft, cright, ileft, iright, kmid):
 #########################
 # average preliminaries #
 #########################
-def get_matrix(base,suffix):
-    f00  = ad['boxlib',base+"00_Re"+suffix]
-    f01  = ad['boxlib',base+"01_Re"+suffix]
-    f01I = ad['boxlib',base+"01_Im"+suffix]
-    f11  = ad['boxlib',base+"11_Re"+suffix]
-    if(NF>=3):
-        f02  = ad['boxlib',base+"02_Re"+suffix]
-        f02I = ad['boxlib',base+"02_Im"+suffix]
-        f12  = ad['boxlib',base+"12_Re"+suffix]
-        f12I = ad['boxlib',base+"12_Im"+suffix]
-        f22  = ad['boxlib',base+"22_Re"+suffix]
+def get_matrix(base,suffix,fmt="Emu"):
+    if(fmt=="Emu"):
+        f00  = ad['boxlib',base+"00_Re"+suffix]
+        f01  = ad['boxlib',base+"01_Re"+suffix]
+        f01I = ad['boxlib',base+"01_Im"+suffix]
+        f11  = ad['boxlib',base+"11_Re"+suffix]
+        if(NF>=3):
+            f02  = ad['boxlib',base+"02_Re"+suffix]
+            f02I = ad['boxlib',base+"02_Im"+suffix]
+            f12  = ad['boxlib',base+"12_Re"+suffix]
+            f12I = ad['boxlib',base+"12_Im"+suffix]
+            f22  = ad['boxlib',base+"22_Re"+suffix]
+
+    if(fmt=="FLASH"):
+        assert NF==2
+        # need to translate Emu dataset names to FLASH ones
+        # WARNING - we are calculating energy densities instead of number densities
+        energyGroup = "01"
+
+        if base=="N":
+            baseFlash = "e"
+        if base=="Fx":
+            baseFlash = "f"
+        if base=="Fy":
+            baseFlash = "g"
+        if base=="Fz":
+            baseFlash = "h"
+        
+        if suffix=="":
+            suffixFlash = ["e","m","r","i"]
+        if suffix=="bar":
+            suffixFlash = ["a","n","s","j"]
+
+        f00  = ad['flash',baseFlash+suffixFlash[0]+energyGroup]
+        f11  = ad['flash',baseFlash+suffixFlash[1]+energyGroup]
+        f01  = ad['flash',baseFlash+suffixFlash[2]+energyGroup]
+        f01I = ad['flash',baseFlash+suffixFlash[3]+energyGroup]
+            
     zero = np.zeros(np.shape(f00))
+
     if(NF==2):
         fR = [[f00 , f01 ], [ f01 ,f11 ]]
         fI = [[zero, f01I], [-f01I,zero]]
@@ -341,7 +370,7 @@ if do_MPI:
 else:
     mpi_rank = 0
     mpi_size = 1
-directories = sorted(glob.glob("plt*"))
+directories = sorted(glob.glob(output_base+"*"))
 if( (not do_average) and (not do_fft)):
     directories = []
 for d in directories[mpi_rank::mpi_size]:
