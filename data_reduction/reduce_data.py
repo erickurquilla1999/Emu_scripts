@@ -25,7 +25,8 @@ import scipy.special
 # INPUTS #
 ##########
 NF = 2
-nproc = 4
+#nproc = 4
+nproc = 2
 do_average = True
 do_fft     = True
 
@@ -33,6 +34,15 @@ do_MPI = False
 
 output_base = "nov4_test_hdf5_chk_"
 energyGroup = "01"
+
+#Change yt logging level
+yt.set_log_level("error")
+
+#FLASH quantities
+e01_energy = emu.e01_energy
+MeV_to_codeenergy = emu.nulib_energy_gf
+cm_to_codelength = emu.nulib_length_gf
+convfact = 1.0/(MeV_to_codeenergy/cm_to_codelength**3)#MeV/cm^3/(E code units)
 
 #####################
 # FFT preliminaries #
@@ -111,11 +121,23 @@ def get_matrix(base,suffix):
     if suffix=="bar":
         suffixFlash = ["a","n","s","j"]
 
-    f00  = ad['flash',baseFlash+suffixFlash[0]+energyGroup]
-    f11  = ad['flash',baseFlash+suffixFlash[1]+energyGroup]
-    f01  = ad['flash',baseFlash+suffixFlash[2]+energyGroup]
-    f01I = ad['flash',baseFlash+suffixFlash[3]+energyGroup]
-            
+    #f00  = ad['flash',baseFlash+suffixFlash[0]+energyGroup]
+    #f11  = ad['flash',baseFlash+suffixFlash[1]+energyGroup]
+    #f01  = ad['flash',baseFlash+suffixFlash[2]+energyGroup]
+    #f01I = ad['flash',baseFlash+suffixFlash[3]+energyGroup]
+
+    #with unit conversions:
+    f00  = ad['flash',baseFlash+suffixFlash[0]+energyGroup]*convfact
+    f11  = ad['flash',baseFlash+suffixFlash[1]+energyGroup]*convfact
+    f01  = ad['flash',baseFlash+suffixFlash[2]+energyGroup]*convfact
+    f01I = ad['flash',baseFlash+suffixFlash[3]+energyGroup]*convfact
+
+    #number densities:
+    f00  = 4.0*np.pi*f00/e01_energy
+    f11  = 4.0*np.pi*f11/e01_energy
+    f01  = 4.0*np.pi*f01/e01_energy
+    f01I = 4.0*np.pi*f01I/e01_energy
+
     zero = np.zeros(np.shape(f00))
 
     if(NF==2):
@@ -181,11 +203,13 @@ if do_MPI:
 else:
     mpi_rank = 0
     mpi_size = 1
-directories = sorted(glob.glob(output_base+"*"))
+#directories = sorted(glob.glob(output_base+"*"))
+directories = ["nov4_test_hdf5_chk_0375"]
 if( (not do_average) and (not do_fft)):
     directories = []
 for d in directories[mpi_rank::mpi_size]:
     print("# rank",mpi_rank,"is working on", d)
+    sys.stdout.flush()
     eds = emu.EmuDataset(d)
     t = eds.ds.current_time
     ad = eds.ds.all_data()
@@ -202,18 +226,18 @@ for d in directories[mpi_rank::mpi_size]:
         trace = sumtrace
         N = averaged_N(thisN,thisNI,sumtrace)
 
-        thisN, thisNI = get_matrix("N","bar")
-        sumtrace = sumtrace_N(thisN)
-        tracebar = sumtrace
-        Nbar = averaged_N(thisN,thisNI,sumtrace)
-
         thisFx, thisFxI = get_matrix("Fx","")
         thisFy, thisFyI = get_matrix("Fy","")
         thisFz, thisFzI = get_matrix("Fz","")
         Ftmp  = np.array([thisFx , thisFy , thisFz ])
         FtmpI = np.array([thisFxI, thisFyI, thisFzI])
         F = averaged_F(Ftmp, FtmpI,sumtrace)
-    
+
+        thisN, thisNI = get_matrix("N","bar")
+        sumtrace = sumtrace_N(thisN)
+        tracebar = sumtrace
+        Nbar = averaged_N(thisN,thisNI,sumtrace)
+
         thisFx, thisFxI = get_matrix("Fx","bar") 
         thisFy, thisFyI = get_matrix("Fy","bar") 
         thisFz, thisFzI = get_matrix("Fz","bar") 
@@ -222,6 +246,7 @@ for d in directories[mpi_rank::mpi_size]:
         Fbar = averaged_F(Ftmp, FtmpI,sumtrace)
 
         print("# rank",mpi_rank,"writing",outputfilename)
+        sys.stdout.flush()
         avgData = h5py.File(outputfilename,"w")
         avgData["N_avg_mag"] = [N,]
         avgData["Nbar_avg_mag"] = [Nbar,]
@@ -238,6 +263,7 @@ for d in directories[mpi_rank::mpi_size]:
     if do_fft and not already_done:
 
         print("# rank",mpi_rank,"writing",outputfilename)
+        sys.stdout.flush()
         fout = h5py.File(outputfilename,"w")
         fout["t"] = [np.array(t),]
 

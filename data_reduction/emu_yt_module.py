@@ -5,6 +5,14 @@ import scipy.fft as fft
 from yt import derived_field
 import yt.units.dimensions as dimensions
 
+
+#FLASH quantities
+e01_energy = 50.0 #MeV
+nulib_energy_gf = 1.60217733e-6*5.59424238e-55 #code energy/MeV
+nulib_length_gf = 6.77140812e-06 #code length/cm
+convfact = 1.0/(nulib_energy_gf/nulib_length_gf**3)#MeV/cm^3/(E code units)
+
+
 class Dim3(object):
     def __init__(self, x=0, y=0, z=0):
         if type(x) == np.ndarray:
@@ -187,6 +195,11 @@ class EmuDataset(object):
             FT = np.squeeze(self.cg[field_Re][:,:,:].d + 1j * self.cg[field_Im][:,:,:].d)
         else:
             FT = np.squeeze(self.cg[field_Re][:,:,:].d)
+
+        #convert to MeV/cm^3
+        FT = FT*convfact
+        #convert to number density:
+        FT = 4.0*np.pi*FT/e01_energy
 
         # use fftn to do an N-dimensional FFT on an N-dimensional numpy array
         FT = fft.fftn(FT,workers=nproc)

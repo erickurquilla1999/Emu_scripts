@@ -12,7 +12,8 @@ if(len(sys.argv) != 2):
 base_filename = sys.argv[1]
 print(base_filename)
 
-file_list = sorted(glob.glob("plt*/"+base_filename))
+file_list = sorted(glob.glob(base_filename+"*"))
+#file_list = file_list[:10]
 
 # get the number of datasets in the file
 f = h5py.File(file_list[0],"r")
@@ -33,8 +34,9 @@ for filename in file_list:
 # concatenate the arrays together
 # output to file
 print()
-print("Outputting datasets to "+base_filename)
-f = h5py.File(base_filename,"w")
+output_filename='reduced_data_fft_power_nov4_test_hdf5_chk.h5'
+print("Outputting datasets to "+output_filename)
+f = h5py.File(output_filename,"w")
 for i, key in enumerate(keylist):
     if key=="k" or key=="phat":
         datasets[i] = datasets[i][0]

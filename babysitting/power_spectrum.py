@@ -5,8 +5,10 @@ import h5py
 import matplotlib as mpl
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,AutoMinorLocator,LogLocator)
 
-variables=["N","Fx","Fy","Fz"]
-flavors=["00","11","22","01","02","12"]
+#variables=["N","Fx","Fy","Fz"]
+#flavors=["00","11","22","01","02","12"]
+variables=["N"]
+flavors=["00","11","01"]
 cmap=mpl.cm.jet
 
 ################
@@ -35,9 +37,12 @@ def makeplot(v,f,data):
     t=data["t"]
     k=data["k"]
     fft = data[v+f+"_FFT"]
-    total_power = np.sum(fft)
+    fft = np.array(fft)
+    #total_power = np.sum(fft)
     for it in range(len(t)):
-        ax.semilogy(k, fft[it,:-1]/total_power, color=cmap(t[it]/t[-1]))
+        total_power = np.sum(fft[it,:])
+        #ax.semilogy(k, fft[it,:-1], color=cmap(t[it]/t[-1]))
+        ax.semilogy(k[:], fft[it,:-1], color=cmap(t[it]/t[-1]))
     
     # colorbar
     cax = fig.add_axes([0.125, .89, .775, 0.02])
@@ -52,13 +57,15 @@ def makeplot(v,f,data):
 
     # axis labels
     ax.set_xlabel(r"$k\,(\mathrm{cm}^{-1})$")
-    ax.set_ylabel(r"$|\widetilde{f}|^2\,(\mathrm{cm}^{-2})$")
+    #ax.set_ylabel(r"$|\widetilde{f}|^2\,(\mathrm{cm}^{-2})$")
+    ax.set_ylabel(r"$|\widetilde{{n}}_{{{}}}|^2\,(\mathrm{{cm}}^{{-6}})$".format(f))
     ax.minorticks_on()
     ax.grid(which='both')
     
     plt.savefig(v+f+"_FFT_power.pdf", bbox_inches='tight')
 
-data = h5py.File("reduced_data_fft_power.h5","r")
+
+data = h5py.File("reduced_data_fft_power_nov4_test_hdf5_chk.h5","r")
 
 for v in variables:
     for f in flavors:
