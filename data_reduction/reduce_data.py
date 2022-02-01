@@ -32,7 +32,8 @@ do_fft     = True
 
 do_MPI = False
 
-output_base = "nov4_test_hdf5_chk_"
+#output_base = "nov4_test_hdf5_chk_"
+output_base = "NSM_sim_hdf5_chk_"
 energyGroup = "01"
 
 #Change yt logging level
@@ -203,8 +204,9 @@ if do_MPI:
 else:
     mpi_rank = 0
     mpi_size = 1
-#directories = sorted(glob.glob(output_base+"*"))
-directories = ["nov4_test_hdf5_chk_0375"]
+directories = sorted(glob.glob(output_base+"*"))
+#directories = ["nov4_test_hdf5_chk_0375"]
+#directories = directories[591:592]
 if( (not do_average) and (not do_fft)):
     directories = []
 for d in directories[mpi_rank::mpi_size]:

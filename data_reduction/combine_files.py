@@ -34,7 +34,10 @@ for filename in file_list:
 # concatenate the arrays together
 # output to file
 print()
-output_filename='reduced_data_fft_power_nov4_test_hdf5_chk.h5'
+#output_filename='reduced_data_nov4_test_hdf5_chk.h5'
+#output_filename='reduced_data_fft_power_nov4_test_hdf5_chk.h5'
+output_filename='reduced_data_NSM_sim.h5'
+#output_filename='reduced_data_fft_power_NSM_sim.h5'
 print("Outputting datasets to "+output_filename)
 f = h5py.File(output_filename,"w")
 for i, key in enumerate(keylist):
