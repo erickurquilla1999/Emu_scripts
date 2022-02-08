@@ -71,7 +71,7 @@ mpl.rcParams['ytick.minor.width'] = 2
 mpl.rcParams['axes.linewidth'] = 2
 
 
-fig, axes = plt.subplots(3,1, figsize=(6,15))
+fig, axes = plt.subplots(1,3, figsize=(18,6), sharey=True)
 plt.subplots_adjust(hspace=0,wspace=0)
 
 ##############
@@ -82,9 +82,12 @@ for ax in axes.flatten():
     ax.xaxis.set_minor_locator(AutoMinorLocator())
     ax.yaxis.set_minor_locator(AutoMinorLocator())
     ax.minorticks_on()
-    ax.set_ylabel(r"$\widetilde{N}_{ex}$")
     #ax.grid(which='both')
-axes[-1].set_xlabel(r"$k\,({\rm cm}^{-1})$")
+    ax.set_xlabel(r"$k\,({\rm cm}^{-1})$")
+axes[0].set_ylabel(r"$\widetilde{N}_{ex}/\mathrm{Tr}(N)$")
+axes[0].set_xlim(0,8)
+axes[1].set_xlim(0.01,8)
+axes[2].set_xlim(0.01,2)
 
 #############
 # plot data #
