@@ -1,5 +1,4 @@
-# Run from /ocean/projects/phy200048p/shared to generate plot showing time evolution of <fee> at different dimensionalities
-
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import glob
@@ -26,17 +25,27 @@ def offdiagMag(f):
 ######################
 # read averaged data #
 ######################
-def plotdata(filename, t_in):
+def plotdata(filename_FFT, filename_avg, t_in):
+    if not os.path.exists(filename_FFT):
+        return [0,],[0,]
     
-    avgData = h5py.File(filename,"r")
-    
+    fftData = h5py.File(filename_FFT,"r")
+    t=np.array(fftData["t"])
+    k=np.array(fftData["k"])
+    Nee=np.array(fftData["N00_FFT"])
+    Nxx=np.array(fftData["N11_FFT"])
+    Nex=np.array(fftData["N01_FFT"])
+    fftData.close()
+
+    avgData = h5py.File(filename_avg,"r")
     t=np.array(avgData["t"])
-    k=np.array(avgData["k"])
-    Nee=np.array(avgData["N00_FFT"])
-    Nxx=np.array(avgData["N11_FFT"])
-    Nex=np.array(avgData["N01_FFT"])
+    Nexavg=np.array(avgData["N_avg_mag"][:,0,1])
     avgData.close()
 
+    # make time relative to tmax
+    itmax = np.argmax(Nexavg)
+    t = t-t[itmax]
+    
     # get time closest to t
     dt = np.abs(t-t_in)
     it = np.argmin(dt)
@@ -62,33 +71,49 @@ mpl.rcParams['ytick.minor.width'] = 2
 mpl.rcParams['axes.linewidth'] = 2
 
 
-fig, ax = plt.subplots(1,1, figsize=(6,5))
+fig, axes = plt.subplots(3,1, figsize=(6,15))
+plt.subplots_adjust(hspace=0,wspace=0)
 
 ##############
 # formatting #
 ##############
-ax.tick_params(axis='both', which='both', direction='in', right=True,top=True)
-ax.xaxis.set_minor_locator(AutoMinorLocator())
-ax.yaxis.set_minor_locator(AutoMinorLocator())
-ax.minorticks_on()
-#ax.grid(which='both')
+for ax in axes.flatten():
+    ax.tick_params(axis='both', which='both', direction='in', right=True,top=True)
+    ax.xaxis.set_minor_locator(AutoMinorLocator())
+    ax.yaxis.set_minor_locator(AutoMinorLocator())
+    ax.minorticks_on()
+    ax.set_ylabel(r"$\widetilde{N}_{ex}$")
+    #ax.grid(which='both')
+axes[-1].set_xlabel(r"$k\,({\rm cm}^{-1})$")
 
 #############
 # plot data #
 #############
-tplot = 0.2e-9
-filename_emu_2f = "/global/project/projectdirs/m3761/Evan/Fiducial_3D_2F/reduced_data_fft_power.h5"
-filename_emu_3f = "/global/project/projectdirs/m3761/Evan/Fiducial_3D_3F_reduced_data_fft_power.h5"
-filename_bang = "/global/project/projectdirs/m3761/FLASH/FFI_3D/fid/sim1/reduced_data_fft_power_nov4_test_hdf5_chk.h5"
-k1,N1 = plotdata(filename_emu_2f,tplot)
-ax.semilogy(k1, N1, 'k-', label=r'${\rm emu\,\,(2f)}$')
-k2,N2 = plotdata(filename_emu_3f,tplot)
-ax.semilogy(k2, N2, 'k--', label=r'${\rm emu\,\,(3f)}$')
-k3,N3 = plotdata(filename_bang,tplot)
-ax.semilogy(k3, N3, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
-ax.set_xlabel(r"$k,({\rm cm}^{-1})$")
-ax.set_ylabel(r"$\widetilde{N}_{ex}$")
-ax.legend(loc='upper right')
+tplot = -0.1e-9
+basedirs = ["/global/project/projectdirs/m3761/Evan/",
+            "/global/project/projectdirs/m3761/Evan/",
+            "/global/project/projectdirs/m3761/FLASH/FFI_3D/"]
+simlist_fid = ["Fiducial_3D_2F", "Fiducial_3D_3F", "fid"]
+simlist_90deg = ["90Degree_3D_2F", "90Degree_3D_3F", "90d"]
+simlist_23 = ["TwoThirds_3D_2F", "TwoThirds_3D_3F", "2_3"]
+
+def makeplot(ax, simlist):
+    filename_emu_2f = basedirs[0]+simlist[0]+"/reduced_data_fft_power.h5"
+    filename_emu_3f = basedirs[1]+simlist[1]+"_reduced_data_fft_power.h5"
+    filename_bang   = basedirs[2]+simlist[2]+"/sim1/reduced_data_fft_power_nov4_test_hdf5_chk.h5"
+    filename_emu_2f_avg = basedirs[0]+simlist[0]+"/reduced_data.h5"
+    filename_emu_3f_avg = basedirs[1]+simlist[1]+"_reduced_data.h5"
+    filename_bang_avg   = basedirs[2]+simlist[2]+"/sim1/reduced_data_nov4_test_hdf5_chk.h5"
+    k1,N1 = plotdata(filename_emu_2f,filename_emu_2f_avg,tplot)
+    ax.semilogy(k1, N1, 'k-', label=r'${\rm emu\,\,(2f)}$')
+    k2,N2 = plotdata(filename_emu_3f,filename_emu_3f_avg,tplot)
+    ax.semilogy(k2, N2, 'k--', label=r'${\rm emu\,\,(3f)}$')
+    k3,N3 = plotdata(filename_bang,filename_bang_avg,tplot)
+    ax.semilogy(k3, N3, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
+
+makeplot(axes[0],simlist_fid)
+makeplot(axes[1],simlist_90deg)
+makeplot(axes[2],simlist_23)
+    
+axes[0].legend(loc='upper right')
 plt.savefig("N_ex_FFT.pdf", bbox_inches="tight")
-print(N1[0]/N3[0])
-print(N3[0]/N1[0])
