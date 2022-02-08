@@ -105,9 +105,9 @@ def makeplot(ax, simlist):
     filename_emu_3f_avg = basedirs[1]+simlist[1]+"_reduced_data.h5"
     filename_bang_avg   = basedirs[2]+simlist[2]+"/sim1/reduced_data_nov4_test_hdf5_chk.h5"
     k1,N1 = plotdata(filename_emu_2f,filename_emu_2f_avg,tplot)
-    ax.semilogy(k1, N1, 'k-', label=r'${\rm emu\,\,(2f)}$')
+    ax.semilogy(k1, N1, 'k-', label=r'${\rm Emu\,\,(2f)}$')
     k2,N2 = plotdata(filename_emu_3f,filename_emu_3f_avg,tplot)
-    ax.semilogy(k2, N2, 'k--', label=r'${\rm emu\,\,(3f)}$')
+    ax.semilogy(k2, N2, 'k--', label=r'${\rm Emu\,\,(3f)}$')
     k3,N3 = plotdata(filename_bang,filename_bang_avg,tplot)
     ax.semilogy(k3, N3, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
 
@@ -115,5 +115,5 @@ makeplot(axes[0],simlist_fid)
 makeplot(axes[1],simlist_90deg)
 makeplot(axes[2],simlist_23)
     
-axes[0].legend(loc='upper right')
+axes[0].legend(loc='upper right', frameon=False)
 plt.savefig("N_ex_FFT.pdf", bbox_inches="tight")
