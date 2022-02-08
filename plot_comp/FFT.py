@@ -88,6 +88,9 @@ axes[0].set_ylabel(r"$\widetilde{N}_{ex}/\mathrm{Tr}(N)$")
 axes[0].set_xlim(0,8)
 axes[1].set_xlim(0.01,8)
 axes[2].set_xlim(0.01,2)
+axes[0].text(0.5, 1e-3, "Fiducial")
+axes[1].text(0.5, 1e-3, "90Degree")
+axes[2].text(0.5, 1e-3, "TwoThirds")
 
 #############
 # plot data #
