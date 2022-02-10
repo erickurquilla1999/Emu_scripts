@@ -231,6 +231,14 @@ for d in directories[mpi_rank::mpi_size]:
         thisFx, thisFxI = get_matrix("Fx","")
         thisFy, thisFyI = get_matrix("Fy","")
         thisFz, thisFzI = get_matrix("Fz","")
+        for f1 in range(2):
+            for f2 in range(2):
+                thisFx[f1][f2]  = thisFx[f1][f2]  * thisN[f1][f2]
+                thisFy[f1][f2]  = thisFy[f1][f2]  * thisN[f1][f2]
+                thisFz[f1][f2]  = thisFz[f1][f2]  * thisN[f1][f2]
+                thisFxI[f1][f2] = thisFxI[f1][f2] * thisNI[f1][f2]
+                thisFyI[f1][f2] = thisFyI[f1][f2] * thisNI[f1][f2]
+                thisFzI[f1][f2] = thisFzI[f1][f2] * thisNI[f1][f2]
         Ftmp  = np.array([thisFx , thisFy , thisFz ])
         FtmpI = np.array([thisFxI, thisFyI, thisFzI])
         F = averaged_F(Ftmp, FtmpI,sumtrace)
@@ -243,6 +251,14 @@ for d in directories[mpi_rank::mpi_size]:
         thisFx, thisFxI = get_matrix("Fx","bar") 
         thisFy, thisFyI = get_matrix("Fy","bar") 
         thisFz, thisFzI = get_matrix("Fz","bar") 
+        for f1 in range(2):
+            for f2 in range(2):
+                thisFx[f1][f2]  = thisFx[f1][f2]  * thisN[f1][f2]
+                thisFy[f1][f2]  = thisFy[f1][f2]  * thisN[f1][f2]
+                thisFz[f1][f2]  = thisFz[f1][f2]  * thisN[f1][f2]
+                thisFxI[f1][f2] = thisFxI[f1][f2] * thisNI[f1][f2]
+                thisFyI[f1][f2] = thisFyI[f1][f2] * thisNI[f1][f2]
+                thisFzI[f1][f2] = thisFzI[f1][f2] * thisNI[f1][f2]
         Ftmp  = np.array([thisFx , thisFy , thisFz ])
         FtmpI = np.array([thisFxI, thisFyI, thisFzI])
         Fbar = averaged_F(Ftmp, FtmpI,sumtrace)
