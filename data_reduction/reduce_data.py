@@ -43,7 +43,6 @@ yt.set_log_level("error")
 e01_energy = emu.e01_energy
 MeV_to_codeenergy = emu.nulib_energy_gf
 cm_to_codelength = emu.nulib_length_gf
-convfact = 1.0/(MeV_to_codeenergy/cm_to_codelength**3)#MeV/cm^3/(E code units)
 
 #####################
 # FFT preliminaries #
@@ -128,6 +127,10 @@ def get_matrix(base,suffix):
     #f01I = ad['flash',baseFlash+suffixFlash[3]+energyGroup]
 
     #with unit conversions:
+    if base=="N":
+        convfact = 1.0/(MeV_to_codeenergy/cm_to_codelength**3)#MeV/cm^3/(E code units)
+    else:
+        convfact = 1.0
     f00  = ad['flash',baseFlash+suffixFlash[0]+energyGroup]*convfact
     f11  = ad['flash',baseFlash+suffixFlash[1]+energyGroup]*convfact
     f01  = ad['flash',baseFlash+suffixFlash[2]+energyGroup]*convfact
