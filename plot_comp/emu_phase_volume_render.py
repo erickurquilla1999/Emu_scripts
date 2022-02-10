@@ -12,32 +12,6 @@ from emu_yt_module import EmuDataset
 import argparse
 import textwrap
 
-#3 flavor neutrino derived fields: Number Density
-#normalize by the trace
-@derived_field(name="Norm", units="dimensionless", sampling_type="cell",force_override=True)
-def _Norm(field, data):
-    return np.abs(data["ee01"]) + np.abs(data["em01"])
-@derived_field(name="N01_Norm", units="dimensionless", sampling_type="cell",force_override=True)
-def _N01_Norm(field, data):
-    return np.abs(data["ee01"]) + np.abs(data["em01"])
-
-#individual flavor pairing magnitudes, 0=electron, 1=mu, 2=tau
-@derived_field(name="N01_Mag", units="dimensionless", sampling_type="cell",force_override=True)
-def _N01_Mag(field, data):
-    return np.sqrt((data["ei01"]/data["N01_Norm"])**2 + (data["er01"]/data["N01_Norm"])**2)
-
-#Diagonal components normalized
-@derived_field(name="N00_Mag", units="dimensionless", sampling_type="cell",force_override=True)
-def _N00_Mag(field, data):
-    return data["ee01"]/data["Norm"]
-@derived_field(name="N11_Mag", units="dimensionless", sampling_type="cell",force_override=True)
-def _N11_Mag(field, data):
-    return data["em01"]/data["Norm"]
-
-#total off-diagonal magnitude
-@derived_field(name="OffDiag_Mag", units="dimensionless", sampling_type="cell",force_override=True)
-def _Diag_Mag(field, data):
-    return np.sqrt((data["ei01"]/data["Norm"])**2 + (data["er01"]/data["Norm"])**2)
 
 #off-diagonal phases in degrees for each off-diagonal component is the arctan(Im/Re)
 @derived_field(name="N01_Phase", units="dimensionless", display_name=r'\phi_{e\mu}\,\,(degrees)', sampling_type="cell",force_override=True)
@@ -173,11 +147,12 @@ if __name__ == "__main__":
     # if dataset is already 3D, then simply select
     # the rectangle defined by [lo_edge, hi_edge]
     emu_ND = EmuDataset(args.plotfile)
-    emu_3D = get_3D_selection(args, emu_ND)
+    emu_3D = emu_ND #get_3D_selection(args, emu_ND)
 
     # do the volume rendering for all the phase fields in this plotfile
     if args.fields == ['all']:
         fields = [f for _, f in emu_3D.ds.derived_field_list if "Phase" in f]
+        print(fields)
     else:
         fields = args.fields
 
