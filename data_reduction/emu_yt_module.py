@@ -277,9 +277,9 @@ class EmuDataset(object):
             for i in range(3):
                 if ddim[i] > 1:
                     # set lo[i] to the first cell-centered index to the right of left_edge
-                    lo[i] = round((left_edge[i].d - dleft[i].d) / delta[i].d)
+                    lo[i] = round((left_edge[i] - dleft[i].d) / delta[i].d)
                     # set hi[i] to the last cell-centered index to the left of right_edge
-                    hi[i] = hi[i] - round((dright[i].d - right_edge[i].d) / delta[i].d)
+                    hi[i] = hi[i] - round((dright[i].d - right_edge[i]) / delta[i].d)
 
             lo = Dim3(lo)
             hi = Dim3(hi)
