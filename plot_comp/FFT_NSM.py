@@ -32,6 +32,8 @@ def plotdata(filename_FFT, filename_avg, t_in):
     fftData = h5py.File(filename_FFT,"r")
     t=np.array(fftData["t"])
     k=np.array(fftData["k"])
+    #convert from 1/\lambda to k=2\pi/\lambda:
+    k = 2.0*np.pi*k
     Nee=np.array(fftData["N00_FFT"])
     Nxx=np.array(fftData["N11_FFT"])
     Nex=np.array(fftData["N01_FFT"])
@@ -107,7 +109,14 @@ k2,N2 = plotdata(filename_emu_3f,filename_emu_3f_avg,tplot)
 ax.semilogy(k2, N2, 'k--', label=r'${\rm Emu\,\,(3f)}$')
 k3,N3 = plotdata(filename_bang,filename_bang_avg,tplot)
 ax.semilogy(k3, N3, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
-ax.axvline(0.90, color='g', label=None)
+ax.axvline(5.64, color='g', label=None)
 
 ax.legend(loc='upper right', frameon=False)
 plt.savefig("NSM_N_ex_FFT.pdf", bbox_inches="tight")
+
+ind1 = np.argmax(N1)
+print('emu_2f', ind1, k1[ind1], N1[ind1])
+ind2 = np.argmax(N2)
+print('emu_3f', ind2, k2[ind2], N2[ind2])
+ind3 = np.argmax(N3)
+print('flash', ind3, k3[ind3], N3[ind3])

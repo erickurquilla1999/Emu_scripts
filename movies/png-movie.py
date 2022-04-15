@@ -5,7 +5,7 @@ import moviepy.editor as mp
 import glob
 
 #directory where plot image files are located
-directory_inputs = sorted(glob.glob("/ocean/projects/phy200048p/shared/plots/*/"))
+directory_inputs = sorted(glob.glob("/project/projectdirs/m3761/FLASH/FFI_3D/NSM/sim1/from_payne/v0/volume_rendering/"))
 for d in directory_inputs:
     print("currently checking directory: "+d)
     #taking off the last "/" so I can do path.split
@@ -21,7 +21,7 @@ for d in directory_inputs:
     else:
         print("output directory doesn't have gif and mp4 movies in it yet, running movie script")
         writer = imageio.get_writer(d+filename+".gif", fps=10)
-        for file in sorted(glob.glob(d+"plt*3x3subplot.png")): #**specify here which png files you want**
+        for file in sorted(glob.glob(d+"NSM_sim_hdf5_chk_*_N01_Phase_rendering.png")): #**specify here which png files you want**
             writer.append_data(imageio.imread(file))
         writer.close()
 

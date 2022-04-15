@@ -36,6 +36,14 @@ do_MPI = False
 output_base = "NSM_sim_hdf5_chk_"
 energyGroup = "01"
 
+#Scale trace from NF=2 to NF=3 (assumes invariance of trace):
+#For test cases, trivial:
+#NF_2_to_3_nu = 1.0
+#NF_2_to_3_bnu = 1.0
+#For NSM:
+NF_2_to_3_nu = 1.2567235951976785
+NF_2_to_3_bnu = 1.204149798567299
+
 #Change yt logging level
 yt.set_log_level("error")
 
@@ -227,7 +235,7 @@ for d in directories[mpi_rank::mpi_size]:
     already_done = len(glob.glob(outputfilename))>0
     if do_average and not already_done:
         thisN, thisNI = get_matrix("N",""   )
-        sumtrace = sumtrace_N(thisN)
+        sumtrace = sumtrace_N(thisN)*NF_2_to_3_nu
         trace = sumtrace
         N = averaged_N(thisN,thisNI,sumtrace)
 
@@ -247,7 +255,7 @@ for d in directories[mpi_rank::mpi_size]:
         F = averaged_F(Ftmp, FtmpI,sumtrace)
 
         thisN, thisNI = get_matrix("N","bar")
-        sumtrace = sumtrace_N(thisN)
+        sumtrace = sumtrace_N(thisN)*NF_2_to_3_bnu
         tracebar = sumtrace
         Nbar = averaged_N(thisN,thisNI,sumtrace)
 

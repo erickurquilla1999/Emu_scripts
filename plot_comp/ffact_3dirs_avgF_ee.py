@@ -108,8 +108,8 @@ basedirs = ["/global/project/projectdirs/m3761/Evan/",
             "/global/project/projectdirs/m3761/FLASH/FFI_3D/"]
 simlist = ["merger_2F/", "merger_3F/", "NSM/"]
 
-filename_emu_2f = basedirs[0]+simlist[0]+"reduced_data.h5"
-filename_emu_3f = basedirs[1]+simlist[1]+"reduced_data.h5"
+filename_emu_2f = basedirs[0]+simlist[0]+"reduced_data_unitful.h5"
+filename_emu_3f = basedirs[1]+simlist[1]+"reduced_data_unitful.h5"
 filename_bang   = basedirs[2]+simlist[2]+"sim1/reduced_data_NSM_sim_hdf5_chk.h5"
 
 for d in range(3):

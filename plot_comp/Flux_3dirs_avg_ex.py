@@ -49,9 +49,7 @@ def plotdata(filename_avg, d, a, b):
     N=np.array(avgData["F_avg_mag"])[:,d,a,b]
     avgData.close()
 
-    ff = N/Nexavg
-
-    return t, ff
+    return t, N
 
 
 ################
@@ -86,9 +84,9 @@ for i in range(3):
     axes[i].minorticks_on()
     #axex[i].grid(which='both')
 axes[0].set_xlim(-1.0, 4.0)
-axes[0].set_ylabel(r"$\langle |f^{(x)}_{ex}|\rangle$")
-axes[1].set_ylabel(r"$\langle |f^{(y)}_{ex}|\rangle$")
-axes[2].set_ylabel(r"$\langle |f^{(z)}_{ex}|\rangle$")
+axes[0].set_ylabel(r"$\langle |F^{(x)}_{ex}|\rangle\,({\rm cm}^{-3})$")
+axes[1].set_ylabel(r"$\langle |F^{(y)}_{ex}|\rangle\,({\rm cm}^{-3})$")
+axes[2].set_ylabel(r"$\langle |F^{(z)}_{ex}|\rangle\,({\rm cm}^{-3})$")
 #axes[0].set_ylim(0.9*mfact*n_nux0, 1.1*mfact*n_nue0)
 
 #############
@@ -114,13 +112,13 @@ filename_bang   = basedirs[2]+simlist[2]+"sim1/reduced_data_NSM_sim_hdf5_chk.h5"
 
 for d in range(3):
     t,F = plotdata(filename_emu_2f,d,0,1)
-    axes[d].plot(t, F, 'k-', label=r'${\rm Emu\,\,(2f)}$')
+    axes[d].semilogy(t, F, 'k-', label=r'${\rm Emu\,\,(2f)}$')
     t,F = plotdata(filename_emu_3f,d,0,1)
-    axes[d].plot(t, F, 'k--', label=r'${\rm Emu\,\,(3f)}$')
+    axes[d].semilogy(t, F, 'k--', label=r'${\rm Emu\,\,(3f)}$')
     t,F = plotdata(filename_bang,d,0,1)
-    axes[d].plot(t, F*flash_ffact_conv, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
+    axes[d].semilogy(t, F*flash_ffact_conv*n_2F, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
 
 ############
 # save pdf #
 ############
-plt.savefig("ffact_3dirs_avgF_ex.pdf", bbox_inches="tight")
+plt.savefig("Flux_3dirs_avg_ex.pdf", bbox_inches="tight")

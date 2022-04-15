@@ -55,8 +55,10 @@ mpl.rcParams['axes.linewidth'] = 2
 
 fig, ax = plt.subplots(1,1, figsize=(6,5))
 
+filename = "reduced_data.h5"
 #filename = "reduced_data_nov4_test_hdf5_chk.h5"
-filename = "reduced_data_NSM_sim.h5"
+#filename = "reduced_data_NSM_sim.h5"
+#filename = "reduced_data_NSM_sim_hdf5_chk.h5"
 
 ##############
 # formatting #
@@ -72,11 +74,19 @@ ax.grid(which='both')
 # same for f_e\mu
 t,N = plotdata(filename,0,1)
 ax.semilogy(t, N)
-ind1 = 5
-ind2 = 1
+#original indices used:
+#ind1 = 5
+#ind2 = 1
+#indices for flash NSM:
+#ind1 = 8
+#ind2 = 3
+#indices for emu NSM:
+ind1 = 15
+ind2 = 11
 ot_est = (np.log(N[ind1]) - np.log(N[ind2]))/1.e-9/(t[ind1] - t[ind2])
 t_line = [t[ind2], t[ind1]]
 N_line = [10.0*N[ind2], 10.0*N[ind1]]
 ax.semilogy(t_line, N_line, color='orange')
 ax.set_title(r"$\tilde{{\omega}}={:.2E}$".format(ot_est))
-plt.savefig("avgfemu_est.pdf", bbox_inches="tight")
+plt.savefig("../../avgfemu_est.pdf", bbox_inches="tight")
+#plt.savefig("avgfemu_est.pdf", bbox_inches="tight")
