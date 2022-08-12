@@ -7,8 +7,12 @@ import h5py
 import matplotlib as mpl
 from matplotlib.ticker import (MultipleLocator, FormatStrFormatter,AutoMinorLocator,LogLocator)
 
-n_nue0 = 1.421954234999705e+33     # 1/ccm
-n_nux0 = 1.9645407875568215e+33/4. # 1/ccm, each flavor
+#NSM_1:
+#n_nue0 = 1.421954234999705e+33     # 1/ccm
+#n_nux0 = 1.9645407875568215e+33/4. # 1/ccm, each flavor
+#NSM_2:
+n_nue0 = 2.3293607911671233e+33    # 1/ccm
+n_nux0 = 1.5026785300973756e+33 # 1/ccm, each flavor
 n_tot = n_nue0 + 2.*n_nux0
 n_2F = n_nue0 + n_nux0
 n_tot_eq = n_tot/3.0
@@ -68,7 +72,7 @@ plt.subplots_adjust(hspace=0)
 # formatting #
 ##############
 axes[0].axhline(mfact*n_2F_eq, color="green")
-axes[0].axhline(mfact*n_tot_eq, color="green", linestyle='--')
+#axes[0].axhline(mfact*n_tot_eq, color="green", linestyle='--')
 axes[1].set_xlabel(r"$t-t_{\rm max}\,(10^{-9}\,\mathrm{s})$")
 for i in range(2):
     axes[i].tick_params(axis='both', which='both', direction='in', right=True,top=True)
@@ -84,59 +88,54 @@ axes[0].set_ylim(0.9*mfact*n_nux0, 1.1*mfact*n_nue0)
 #############
 # plot data #
 #############
-filename_emu_2f = "/global/project/projectdirs/m3761/Evan/merger_2F/reduced_data.h5"
-filename_emu_2f_lowres = "/global/project/projectdirs/m3761/Evan/merger_2F_lowres/reduced_data.h5"
-filename_emu_3f = "/global/project/projectdirs/m3761/Evan/merger_3F/reduced_data.h5"
-filename_emu_3f_lowres = "/global/project/projectdirs/m3761/Evan/merger_3F_lowres/reduced_data.h5"
-filename_bang = "/global/project/projectdirs/m3761/FLASH/FFI_3D/NSM/sim1/reduced_data_NSM_sim_hdf5_chk.h5"
-filename_bang_res1 = "/global/project/projectdirs/m3761/FLASH/FFI_3D/NSM/res_test1/from_payne/v0/reduced_data_NSM_sim.h5"
-filename_bang_res3 = "/global/project/projectdirs/m3761/FLASH/FFI_3D/NSM/res_test3/v0/reduced_data_NSM_sim.h5"
+#filename_bang = "/global/project/projectdirs/m3761/FLASH/FFI_3D/NSM/sim1/reduced_data_NSM_sim_hdf5_chk.h5"
+#filename_bang_res1 = "/global/project/projectdirs/m3761/FLASH/FFI_3D/NSM/res_test1/from_payne/v0/reduced_data_NSM_sim.h5"
+#filename_bang_res2 = "/global/project/projectdirs/m3761/FLASH/FFI_3D/NSM/res_test2/from_payne/v0/reduced_data_NSM_sim.h5"
+#t1
+#box_length = 4.132703957221158
+#n_grid = 128
+#t2
+#box_length = 4.132703957221158
+#n_grid = 256
+#t3
+#box_length = 8.265407914442315
+#n_grid = 256
+#t4
+box_length = 16.53081582888463
+n_grid = 512
+try_dir = 't4'
+filename_bang = "/global/cfs/projectdirs/m3761/FLASH/FFI_3D/NSM_2/" + try_dir + "/sim/reduced_data.h5"
+filename_bang_res1 = "/global/cfs/projectdirs/m3761/FLASH/FFI_3D/NSM_2/" + try_dir + "/res_a/reduced_data.h5"
+filename_bang_res2 = "/global/cfs/projectdirs/m3761/FLASH/FFI_3D/NSM_2/" + try_dir + "/res_b/reduced_data.h5"
 
-t,Nee = plotdata(filename_emu_2f_lowres,0,0)
-tex,Nex = plotdata(filename_emu_2f_lowres,0,1)
+
+t,Nee = plotdata(filename_bang_res2,0,0)
+tex,Nex = plotdata(filename_bang_res2,0,1)
 tmax = t[np.argmax(Nex)]
-axes[0].plot(t-tmax, mfact * Nee * n_2F, 'k-', alpha=0.5)
-axes[1].semilogy(t-tmax, mfact * Nex * n_2F, 'k-', alpha=0.5)
-
-t,Nee = plotdata(filename_emu_2f,0,0)
-tex,Nex = plotdata(filename_emu_2f,0,1)
-tmax = t[np.argmax(Nex)]
-axes[0].plot(t-tmax, mfact * Nee * n_2F, 'k-', label=r'${\rm {\tt EMU}\,\,(2f)}$')
-axes[1].semilogy(t-tmax, mfact * Nex * n_2F, 'k-', label=r'${\rm {\tt EMU}\,\,(2f)}$')
-
-
-t,Nee = plotdata(filename_emu_3f_lowres,0,0)
-tex,Nex = plotdata(filename_emu_3f_lowres,0,1)
-tmax = t[np.argmax(Nex)]
-axes[0].plot(t-tmax, mfact * Nee * n_tot, 'k--', alpha=0.5)
-axes[1].semilogy(t-tmax, mfact * Nex * n_tot, 'k--', alpha=0.5)
-
-t,N = plotdata(filename_emu_3f,0,0)
-tex,Nex = plotdata(filename_emu_3f,0,1)
-tmax = t[np.argmax(Nex)]
-axes[0].plot(t-tmax, mfact * N * n_tot, 'k--', label=r'${\rm {\tt EMU}\,\,(3f)}$')
-axes[1].semilogy(t-tmax, mfact * Nex * n_tot, 'k--', label=r'${\rm {\tt EMU}\,\,(3f)}$')
-
-
-t,Nee = plotdata(filename_bang_res3,0,0)
-tex,Nex = plotdata(filename_bang_res3,0,1)
-tmax = t[np.argmax(Nex)]
+#need odd scaling because of bug when using reduce_data.py on NSM_1/res_test2/ dataset:
+#axes[0].plot(t-tmax, mfact * Nee * n_2F**2/n_tot, 'r-', alpha=0.25)
+#axes[1].semilogy(t-tmax, mfact * Nex * n_2F**2/n_tot, 'r-', alpha=0.25)
 axes[0].plot(t-tmax, mfact * Nee * n_2F, 'r-', alpha=0.25)
 axes[1].semilogy(t-tmax, mfact * Nex * n_2F, 'r-', alpha=0.25)
 
 t,Nee = plotdata(filename_bang_res1,0,0)
 tex,Nex = plotdata(filename_bang_res1,0,1)
 tmax = t[np.argmax(Nex)]
-#No need for n_2F/n_tot scaling for this data set:
-axes[0].plot(t-tmax, mfact * Nee * n_tot, 'r-', alpha=0.5)
-axes[1].semilogy(t-tmax, mfact * Nex * n_tot, 'r-', alpha=0.5)
+#No need for n_2F/n_tot scaling for this NSM_1/res_test1 set, but still need to multiply by n_tot trace:
+#axes[0].plot(t-tmax, mfact * Nee * n_tot, 'r-', alpha=0.5)
+#axes[1].semilogy(t-tmax, mfact * Nex * n_tot, 'r-', alpha=0.5)
+axes[0].plot(t-tmax, mfact * Nee * n_2F, 'r-', alpha=0.5)
+axes[1].semilogy(t-tmax, mfact * Nex * n_2F, 'r-', alpha=0.5)
 
 t,Nee = plotdata(filename_bang,0,0)
 tex,Nex = plotdata(filename_bang,0,1)
 tmax = t[np.argmax(Nex)]
-axes[0].plot(t-tmax, mfact * Nee * n_2F, 'r-', label=r'${\rm{\tt FLASH}\,\,(2f)}$')
-axes[1].semilogy(t-tmax, mfact * Nex * n_2F, 'r-', label=r'${\rm{\tt FLASH}\,\,(2f)}$')
+axes[0].plot(t-tmax, mfact * Nee * n_2F, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
+axes[1].semilogy(t-tmax, mfact * Nex * n_2F, 'r-', label=r'${\rm FLASH\,\,(2f)}$')
 
 
-axes[0].legend(loc=(0.43,0.6), frameon=False)
-plt.savefig("NSM_Nee_Nex_3f_only.pdf", bbox_inches="tight")
+fig.text(0.5, 0.82, r'$L_s={:.3f}\,{{\rm cm}}$'.format(box_length))
+fig.text(0.5, 0.77, r'$N_{{gp,s}}={}^3$'.format(n_grid))
+
+#axes[0].legend(loc=(0.43,0.6), frameon=False)
+plt.savefig("Nee_Nex_2panels.pdf", bbox_inches="tight")

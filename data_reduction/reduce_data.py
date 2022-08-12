@@ -30,10 +30,17 @@ nproc = 2
 do_average = True
 do_fft     = True
 
-do_MPI = False
+do_MPI = True
 
-#output_base = "nov4_test_hdf5_chk_"
-output_base = "NSM_sim_hdf5_chk_"
+if(len(sys.argv) != 2):
+    print()
+    print("Usage: [reduce_data.py filename], where filename is contained in each of the run* subdirectories")
+    print()
+    exit()
+
+output_base = sys.argv[1]
+print(output_base)
+
 energyGroup = "01"
 
 #Scale trace from NF=2 to NF=3 (assumes invariance of trace):
@@ -41,8 +48,8 @@ energyGroup = "01"
 #NF_2_to_3_nu = 1.0
 #NF_2_to_3_bnu = 1.0
 #For NSM:
-NF_2_to_3_nu = 1.2567235951976785
-NF_2_to_3_bnu = 1.204149798567299
+#NF_2_to_3_nu = 1.2567235951976785
+#NF_2_to_3_bnu = 1.204149798567299
 
 #Change yt logging level
 yt.set_log_level("error")
@@ -209,15 +216,14 @@ def offdiagMag(f):
 #########################
 if do_MPI:
     from mpi4py import MPI
-    comm = MPI.COMM_WORLD
-    mpi_rank = comm.Get_rank()
-    mpi_size = comm.Get_size()
+    mpi_rank = MPI.COMM_WORLD.Get_rank()
+    mpi_size = MPI.COMM_WORLD.Get_size()
 else:
     mpi_rank = 0
     mpi_size = 1
 directories = sorted(glob.glob(output_base+"*"))
 #directories = ["nov4_test_hdf5_chk_0375"]
-#directories = directories[591:592]
+#directories = directories[394:395]
 if( (not do_average) and (not do_fft)):
     directories = []
 for d in directories[mpi_rank::mpi_size]:
@@ -235,7 +241,8 @@ for d in directories[mpi_rank::mpi_size]:
     already_done = len(glob.glob(outputfilename))>0
     if do_average and not already_done:
         thisN, thisNI = get_matrix("N",""   )
-        sumtrace = sumtrace_N(thisN)*NF_2_to_3_nu
+        sumtrace = sumtrace_N(thisN)
+        #sumtrace = sumtrace_N(thisN)*NF_2_to_3_nu
         trace = sumtrace
         N = averaged_N(thisN,thisNI,sumtrace)
 
@@ -255,7 +262,8 @@ for d in directories[mpi_rank::mpi_size]:
         F = averaged_F(Ftmp, FtmpI,sumtrace)
 
         thisN, thisNI = get_matrix("N","bar")
-        sumtrace = sumtrace_N(thisN)*NF_2_to_3_bnu
+        sumtrace = sumtrace_N(thisN)
+        #sumtrace = sumtrace_N(thisN)*NF_2_to_3_bnu
         tracebar = sumtrace
         Nbar = averaged_N(thisN,thisNI,sumtrace)
 

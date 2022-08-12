@@ -13,7 +13,7 @@ base_filename = sys.argv[1]
 print(base_filename)
 
 file_list = sorted(glob.glob(base_filename+"*"))
-#file_list = file_list[:10]
+#file_list = file_list[:395]
 
 # get the number of datasets in the file
 f = h5py.File(file_list[0],"r")
@@ -36,8 +36,8 @@ for filename in file_list:
 print()
 #output_filename='reduced_data_nov4_test_hdf5_chk.h5'
 #output_filename='reduced_data_fft_power_nov4_test_hdf5_chk.h5'
-output_filename='reduced_data_NSM_sim.h5'
-#output_filename='reduced_data_fft_power_NSM_sim.h5'
+output_filename='reduced_data.h5'
+#output_filename='reduced_data_fft_power.h5'
 #output_filename='temp_reduced_data_NSM_sim.h5'
 print("Outputting datasets to "+output_filename)
 f = h5py.File(output_filename,"w")

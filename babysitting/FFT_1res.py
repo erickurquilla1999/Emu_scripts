@@ -86,38 +86,26 @@ ax.minorticks_on()
 ax.set_xlabel(r"$k\,({\rm cm}^{-1})$")
 ax.set_ylabel(r"$\widetilde{N}_{ex}/\mathrm{Tr}(N)$")
 #axes[0].set_xlim(0,8)
-ax.set_ylim(1.e-20,1.0)
+#ax.set_ylim(1.e-20,1.0)
 
 #############
 # plot data #
 #############
 tplot = -0.1e-9
-basedirs = ["/global/project/projectdirs/m3761/Evan/",
-            "/global/project/projectdirs/m3761/Evan/",
-            "/global/project/projectdirs/m3761/FLASH/FFI_3D/"]
-simlist = ["merger_2F/", "merger_3F/", "NSM_1/"]
 
-filename_emu_2f = basedirs[0]+simlist[0]+"reduced_data_fft_power.h5"
-filename_emu_3f = basedirs[1]+simlist[1]+"reduced_data_fft_power.h5"
-filename_bang   = basedirs[2]+simlist[2]+"sim/reduced_data_fft_power_NSM_sim_hdf5_chk.h5"
-filename_emu_2f_avg = basedirs[0]+simlist[0]+"reduced_data.h5"
-filename_emu_3f_avg = basedirs[1]+simlist[1]+"reduced_data.h5"
-filename_bang_avg   = basedirs[2]+simlist[2]+"sim/reduced_data_NSM_sim_hdf5_chk.h5"
-k1,N1 = plotdata(filename_emu_2f,filename_emu_2f_avg,tplot)
-ax.semilogy(k1, N1, 'k-', label=r'${\rm {\tt EMU}\,\,(2f)}$')
-k2,N2 = plotdata(filename_emu_3f,filename_emu_3f_avg,tplot)
-ax.semilogy(k2, N2, 'k--', label=r'${\rm {\tt EMU}\,\,(3f)}$')
+#filename_bang   = "reduced_data_fft_power_NSM_sim.h5"
+#filename_bang_avg   = "reduced_data_NSM_sim.h5"
+filename_bang   = "reduced_data_fft_power.h5"
+filename_bang_avg   = "reduced_data.h5"
+#filename_bang   = "reduced_data_fft_power_NSM_res2.h5"
+#filename_bang_avg   = "reduced_data_NSM_res2.h5"
 k3,N3 = plotdata(filename_bang,filename_bang_avg,tplot)
 ax.semilogy(k3, N3, 'r-', label=r'${\rm {\tt FLASH}\,\,(2f)}$')
 #Vertical line from LSA for fastet growing mode
-ax.axvline(5.64, color='g', label=None)
+#ax.axvline(5.64, color='g', label=None)
 
 ax.legend(loc='upper right', frameon=False)
-plt.savefig("NSM_N_ex_FFT.pdf", bbox_inches="tight")
+plt.savefig("Nex_FFT_1res.pdf", bbox_inches="tight")
 
-ind1 = np.argmax(N1)
-print('emu_2f', ind1, k1[ind1], N1[ind1])
-ind2 = np.argmax(N2)
-print('emu_3f', ind2, k2[ind2], N2[ind2])
 ind3 = np.argmax(N3)
 print('flash', ind3, k3[ind3], N3[ind3])
