@@ -1,15 +1,7 @@
-# used to make plots but now just generates a hdf5 file with domain-averaged data.
-# Run in the directory of the simulation the data should be generated for.
-# Still has functionality for per-snapshot plots, but the line is commented out.
-# This version averages the magnitudes of off-diagonal components rather than the real/imaginary parts
-# also normalizes fluxes by sumtrace of N rather than F.
-# This data is used for the growth plot.
-# Note - also tried a version using maxima rather than averages, and it did not make the growth plot look any better.
-
 import os
 os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/data_reduction')
 import numpy as np
 import matplotlib.pyplot as plt
 import yt
@@ -24,11 +16,7 @@ import scipy.special
 ##########
 # INPUTS #
 ##########
-nproc = 4
-
-#########################
-# loop over directories #
-#########################
+nproc = 10
 
 # separate loop for angular spectra so there is no aliasing and better load balancing
 directories = sorted(glob.glob("plt*/neutrinos"))
@@ -89,35 +77,38 @@ class GridData(object):
 
         return idlist
 
+def writetxtfiles(dire):
+
+    eds = emu.EmuDataset(dire)
+    t = eds.ds.current_time
+    ad = eds.ds.all_data()
+
+    header = amrex.AMReXParticleHeader(dire+"/neutrinos/Header")
+    grid_data = GridData(ad)
+    nlevels = len(header.grids)
+    assert nlevels==1
+    level = 0
+    ngrids = len(header.grids[level])
+
+    #creating the file to save the particle data
+    file1 = open(str(dire)+".txt","w")
+    file1.write('pos_x pos_y pos_z time x y z pupx pupy pupz pupt N L f00_Re f01_Re f01_Im f02_Re f02_Im f11_Re f12_Re f12_Im f22_Re Nbar Lbar f00_Rebar f01_Rebar f01_Imbar f02_Rebar f02_Imbar f11_Rebar f12_Rebar f12_Imbar f22_Rebar \n') 
+
+    # loop over all cells within each grid
+    for gridID in range(ngrids):
+        print("grid",gridID+1,"/",ngrids)
+        
+        # read particle data on a single grid
+        idata, rdata = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
+        #writing the particle data 
+        for i in rdata:
+            file1.write(str(i[0])+" "+str(i[1])+" "+str(i[2])+" "+str(i[3])+" "+str(i[4])+" "+str(i[5])+" "+str(i[6])+" "+str(i[7])+" "+str(i[8])+" "+str(i[9])+" "+str(i[10])+" "+str(i[11])+" "+str(i[12])+" "+str(i[13])+" "+str(i[14])+" "+str(i[15])+" "+str(i[16])+" "+str(i[17])+" "+str(i[18])+" "+str(i[19])+" "+str(i[20])+" "+str(i[21])+" "+str(i[22])+" "+str(i[23])+" "+str(i[24])+" "+str(i[25])+" "+str(i[26])+" "+str(i[27])+" "+str(i[28])+" "+str(i[29])+" "+str(i[30])+" "+str(i[31])+" "+str(i[31])+" \n")
+
+    return dire
+
+# run the writetxtfiles function in parallel
 if __name__ == '__main__':
     pool = Pool(nproc)
-    for d in directories:
-        eds = emu.EmuDataset(d)
-        t = eds.ds.current_time
-        ad = eds.ds.all_data()
-
-        ################
-        # angular work #
-        ################
-        header = amrex.AMReXParticleHeader(d+"/neutrinos/Header")
-        grid_data = GridData(ad)
-        nlevels = len(header.grids)
-        assert nlevels==1
-        level = 0
-        ngrids = len(header.grids[level])
-
-        file1 = open(str(d)+".txt","w")
-        file1.write('pos_x pos_y pos_z time x y z pupx pupy pupz pupt N L f00_Re f01_Re f01_Im f02_Re f02_Im f11_Re f12_Re f12_Im f22_Re Nbar Lbar f00_Rebar f01_Rebar f01_Imbar f02_Rebar f02_Imbar f11_Rebar f12_Rebar f12_Imbar f22_Rebar \n') 
-
-        # average the angular power spectrum over many cells
-        # loop over all cells within each grid
-        for gridID in range(ngrids):
-            print("grid",gridID+1,"/",ngrids)
-            
-            # read particle data on a single grid
-            idata, rdata = amrex.read_particle_data(d, ptype="neutrinos", level_gridID=(level,gridID))
-            
-            # EXAMPLE - get density matrix components for all neutrinos on this grid
-            for i in rdata:
-                file1.write(str(i[0])+" "+str(i[1])+" "+str(i[2])+" "+str(i[3])+" "+str(i[4])+" "+str(i[5])+" "+str(i[6])+" "+str(i[7])+" "+str(i[8])+" "+str(i[9])+" "+str(i[10])+" "+str(i[11])+" "+str(i[12])+" "+str(i[13])+" "+str(i[14])+" "+str(i[15])+" "+str(i[16])+" "+str(i[17])+" "+str(i[18])+" "+str(i[19])+" "+str(i[20])+" "+str(i[21])+" "+str(i[22])+" "+str(i[23])+" "+str(i[24])+" "+str(i[25])+" "+str(i[26])+" "+str(i[27])+" "+str(i[28])+" "+str(i[29])+" "+str(i[30])+" "+str(i[31])+" "+str(i[31])+" \n")
-
+    finalresult=pool.map(writetxtfiles,directories)
+    for i in finalresult: print("completed ---> "+i)
+    
