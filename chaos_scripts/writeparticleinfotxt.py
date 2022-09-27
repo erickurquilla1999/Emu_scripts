@@ -1,3 +1,7 @@
+##########################################################
+#This script write all the particle information in the plt* directories into .txt files
+##########################################################
+
 import os
 os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
 import sys
@@ -16,9 +20,8 @@ import scipy.special
 ##########
 # INPUTS #
 ##########
-nproc = 10
+nproc = 2
 
-# separate loop for angular spectra so there is no aliasing and better load balancing
 directories = sorted(glob.glob("plt*/neutrinos"))
 directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
 
@@ -53,10 +56,6 @@ class GridData(object):
         self.nz = int((self.zmax - self.zmin) / self.dz + 0.5)
         print(self.nx, self.ny, self.nz)
         
-
-    # particle cell id ON THE CURRENT GRID
-    # the x, y, and z values are assumed to be relative to the
-    # lower boundary of the grid
     def get_particle_cell_ids(self,rdata):
         # get coordinates
         x = rdata[:,rkey["x"]]
@@ -96,11 +95,10 @@ def writetxtfiles(dire):
 
     # loop over all cells within each grid
     for gridID in range(ngrids):
-        print("grid",gridID+1,"/",ngrids)
         
         # read particle data on a single grid
         idata, rdata = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
-        #writing the particle data 
+        # writing the particle data 
         for i in rdata:
             file1.write(str(i[0])+" "+str(i[1])+" "+str(i[2])+" "+str(i[3])+" "+str(i[4])+" "+str(i[5])+" "+str(i[6])+" "+str(i[7])+" "+str(i[8])+" "+str(i[9])+" "+str(i[10])+" "+str(i[11])+" "+str(i[12])+" "+str(i[13])+" "+str(i[14])+" "+str(i[15])+" "+str(i[16])+" "+str(i[17])+" "+str(i[18])+" "+str(i[19])+" "+str(i[20])+" "+str(i[21])+" "+str(i[22])+" "+str(i[23])+" "+str(i[24])+" "+str(i[25])+" "+str(i[26])+" "+str(i[27])+" "+str(i[28])+" "+str(i[29])+" "+str(i[30])+" "+str(i[31])+" "+str(i[31])+" \n")
 
