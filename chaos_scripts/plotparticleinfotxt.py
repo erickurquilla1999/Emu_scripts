@@ -30,7 +30,7 @@ for dir in directories:
     alldata[12].append(np.average(np.sqrt(data[19]**2+data[20]**2)))
 
 
-labels=['$<\\rho_{ee}>$','$Re<\\rho_{e\mu}>$','$Im<\\rho_{e\mu}>$','$Re<\\rho_{e\\tau}>$','$Im<\\rho_{e\\tau}>$','$<\\rho_{\mu\mu}>$','$Re<\\rho_{\mu\\tau}>$','$Im<\\rho_{\mu\\tau}>$','$<\\rho_{\tau\tau}>$','$|<\\rho_{e\mu}>|$','$|<\\rho_{e\\tau}>|$','$|<\\rho_{\mu\\tau}>$|']
+labels=['$<\\rho_{ee}>$','$Re<\\rho_{e\mu}>$','$Im<\\rho_{e\mu}>$','$Re<\\rho_{e\\tau}>$','$Im<\\rho_{e\\tau}>$','$<\\rho_{\mu\mu}>$','$Re<\\rho_{\mu\\tau}>$','$Im<\\rho_{\mu\\tau}>$','$<\\rho_{\\tau\\tau}>$','$|<\\rho_{e\mu}>|$','$|<\\rho_{e\\tau}>|$','$|<\\rho_{\mu\\tau}>$|']
 names=['txt_rho_ee_av.pdf','txt_Re_rho_eu_av.pdf','txt_Im_rho_eu_av.pdf','txt_Re_rho_et_av.pdf','txt_Im_rho_et_av.pdf','txt_rho_uu_av.pdf','txt_Re_rho_ut_av.pdf','txt_Im_rho_ut_av.pdf','txt_rho_tt_av.pdf','txt_mag_rho_eu_av.pdf','txt_mag_rho_et_av.pdf','txt_mag_rho_mt_av.pdf']
 
 for i in range(1,len(alldata)):

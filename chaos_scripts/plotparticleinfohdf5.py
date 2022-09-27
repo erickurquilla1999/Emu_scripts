@@ -30,7 +30,7 @@ for dir in directories:
     alldata[11].append(np.average(np.sqrt(np.array(hf.get(keys[16]))**2+np.array(hf.get(keys[17]))**2))) 
     alldata[12].append(np.average(np.sqrt(np.array(hf.get(keys[19]))**2+np.array(hf.get(keys[20]))**2)))
 
-labels=['$<\\rho_{ee}>$','$Re<\\rho_{e\mu}>$','$Im<\\rho_{e\mu}>$','$Re<\\rho_{e\\tau}>$','$Im<\\rho_{e\\tau}>$','$<\\rho_{\mu\mu}>$','$Re<\\rho_{\mu\\tau}>$','$Im<\\rho_{\mu\\tau}>$','$<\\rho_{\tau\tau}>$','$|<\\rho_{e\mu}>|$','$|<\\rho_{e\\tau}>|$','$|<\\rho_{\mu\\tau}>$|']
+labels=['$<\\rho_{ee}>$','$Re<\\rho_{e\mu}>$','$Im<\\rho_{e\mu}>$','$Re<\\rho_{e\\tau}>$','$Im<\\rho_{e\\tau}>$','$<\\rho_{\mu\mu}>$','$Re<\\rho_{\mu\\tau}>$','$Im<\\rho_{\mu\\tau}>$','$<\\rho_{\\tau\\tau}>$','$|<\\rho_{e\mu}>|$','$|<\\rho_{e\\tau}>|$','$|<\\rho_{\mu\\tau}>$|']
 names=['h5_rho_ee_av.pdf','h5_Re_rho_eu_av.pdf','h5_Im_rho_eu_av.pdf','h5_Re_rho_et_av.pdf','h5_Im_rho_et_av.pdf','h5_rho_uu_av.pdf','h5_Re_rho_ut_av.pdf','h5_Im_rho_ut_av.pdf','h5_rho_tt_av.pdf','h5_mag_rho_eu_av.pdf','h5_mag_rho_et_av.pdf','h5_mag_rho_mt_av.pdf']
 
 for i in range(1,len(alldata)):
