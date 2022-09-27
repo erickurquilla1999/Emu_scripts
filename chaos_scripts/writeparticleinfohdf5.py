@@ -1,15 +1,11 @@
-# used to make plots but now just generates a hdf5 file with domain-averaged data.
-# Run in the directory of the simulation the data should be generated for.
-# Still has functionality for per-snapshot plots, but the line is commented out.
-# This version averages the magnitudes of off-diagonal components rather than the real/imaginary parts
-# also normalizes fluxes by sumtrace of N rather than F.
-# This data is used for the growth plot.
-# Note - also tried a version using maxima rather than averages, and it did not make the growth plot look any better.
+##########################################################
+#This script write all the particle information in the plt* directories into hdf5 format files
+##########################################################
 
 import os
 os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
 import sys
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/data_reduction')
 import numpy as np
 import matplotlib.pyplot as plt
 import yt
@@ -24,13 +20,8 @@ import scipy.special
 ##########
 # INPUTS #
 ##########
-nproc = 4
+nproc = 2
 
-#########################
-# loop over directories #
-#########################
-
-# separate loop for angular spectra so there is no aliasing and better load balancing
 directories = sorted(glob.glob("plt*/neutrinos"))
 directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
 
@@ -65,10 +56,6 @@ class GridData(object):
         self.nz = int((self.zmax - self.zmin) / self.dz + 0.5)
         print(self.nx, self.ny, self.nz)
         
-
-    # particle cell id ON THE CURRENT GRID
-    # the x, y, and z values are assumed to be relative to the
-    # lower boundary of the grid
     def get_particle_cell_ids(self,rdata):
         # get coordinates
         x = rdata[:,rkey["x"]]
@@ -89,52 +76,46 @@ class GridData(object):
 
         return idlist
 
+def writetxtfiles(dire):
+
+    eds = emu.EmuDataset(dire)
+    t = eds.ds.current_time
+    ad = eds.ds.all_data()
+
+    header = amrex.AMReXParticleHeader(dire+"/neutrinos/Header")
+    grid_data = GridData(ad)
+    nlevels = len(header.grids)
+    assert nlevels==1
+    level = 0
+    ngrids = len(header.grids[level])
+
+    # creating the file to save the particle data
+    hf = h5py.File(str(dire)+".h5", 'w')
+    
+    # hdf5 keys
+    labels=['pos_x','pos_y','pos_z','time','x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'Nbar' ,'Lbar', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+
+    for label in labels: 
+        hf.create_dataset(label,data=[],maxshape=(None,),chunks=True)                                                                                                                                            
+
+    # loop over all cells within each grid
+    for gridID in range(ngrids):
+        
+        # read particle data on a single grid
+        idata, rdata = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
+        
+        # writing the particle data 
+        for label in labels:
+            hf[label].resize((hf[label].shape[0] + rdata[:,rkey[label]].shape[0]), axis=0)
+            hf[label][-rdata[:,rkey[label]].shape[0]:] = rdata[:,rkey[label]]
+    
+    hf.close()
+
+    return dire
+
+# run the write hdf5 files function in parallel
 if __name__ == '__main__':
     pool = Pool(nproc)
-    for d in directories:
-        eds = emu.EmuDataset(d)
-        t = eds.ds.current_time
-        ad = eds.ds.all_data()
-
-        ################
-        # angular work #
-        ################
-        header = amrex.AMReXParticleHeader(d+"/neutrinos/Header")
-        grid_data = GridData(ad)
-        nlevels = len(header.grids)
-        assert nlevels==1
-        level = 0
-        ngrids = len(header.grids[level])
-
-        # open a file with write permissions (overwrites the file)
-        f = h5py.File(str(d)+".h5","w")
-
-        # average the angular power spectrum over many cells
-        # loop over all cells within each grid
-
-        all_data=[]
-        for i in range(0,33):
-            all_data.append(np.array([]))
-
-        for gridID in range(ngrids):
-            print("grid",gridID+1,"/",ngrids)
-
-            # read particle data on a single grid
-            idata, rdata = amrex.read_particle_data(d, ptype="neutrinos", level_gridID=(level,gridID))
-            for j in range(0,33):
-                all_data[j]=np.append(all_data[j],rdata[:,j])
-            
-
-
-            # write the data to file
-
-        labels_=['pos_x', 'pos_y', 'pos_z', 'time', 'x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re',\
-                'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im', 'f22_Re', 'Nbar', 'Lbar', 'f00_Rebar', \
-                'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar', 'f12_Imbar', 'f22_Rebar']  
-        
-        #writing particle information in hdf5 files
-        # write the data to file
-        for k in range(0,len(labels_)):
-            f[labels_[k]] = all_data[k]
-
-        f.close()
+    finalresult=pool.map(writetxtfiles,directories)
+    for i in finalresult: print("completed ---> "+i)
+    
