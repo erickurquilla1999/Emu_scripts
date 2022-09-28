@@ -1,3 +1,9 @@
+##########################################################
+# this script save a .h5 file with the magnitud of the 
+# difference of state vectors for a given time for two 
+# differente simulations
+##########################################################
+
 import os
 os.environ['HDF5_USE_FILE_LOCKING'] = 'FALSE'
 import sys
@@ -14,11 +20,16 @@ from multiprocessing import Pool
 import scipy.special
 import time
 
+##########
+# INPUTS #
+##########
+nproc = 2         
+
 #start counting time
 st = time.time()
 
 # get the plt directories of the original simulation
-directories = sorted(glob.glob("ori/plt*/neutrinos"))
+directories = sorted(glob.glob("plt*/neutrinos"))
 directories = [directories[i].split('/n')[0] for i in range(len(directories))] # remove "neutrinos"
 
 # get number of flavors ---> NF
@@ -51,11 +62,7 @@ class GridData(object):
         self.ny = int((self.ymax - self.ymin) / self.dy + 0.5)
         self.nz = int((self.zmax - self.zmin) / self.dz + 0.5)
         #print(self.nx, self.ny, self.nz)
-        
-
-    # particle cell id ON THE CURRENT GRID
-    # the x, y, and z values are assumed to be relative to the
-    # lower boundary of the grid
+       
     def get_particle_cell_ids(self,rdata):
         # get coordinates
         x = rdata[:,rkey["x"]]
@@ -83,8 +90,8 @@ def compute_ssdiff(dire):
     cpt = time.time()
    
     #directories for original and perturbed data
-    dirori_='ori/'+str(dire)
-    dirper_='per/'+str(dire)
+    dirori_='../ori/'+str(dire)
+    dirper_=dire
 
     eds = emu.EmuDataset(dirori_)
     t = eds.ds.current_time
@@ -133,26 +140,26 @@ def compute_ssdiff(dire):
 
     #print the total execution time of this function
     print(str(dire)+" time: "+str(time.time() - cpt))
-    
+
     return rdataori[:,rkey["time"]][1],sumss**0.5
-
-directories=[directories[i].split('/')[1] for i in range(len(directories))]
-directories=directories[1:-1]
-
-nproc = 2
 
 if __name__ == '__main__':
 
-    pool = Pool(nproc)
-    
+    # run compute_ssdiff in  paralell
+    pool = Pool(nproc)   
     finalresult=pool.map(compute_ssdiff,directories)  
     
-    # writting a text file for save the generated data
-    f = open("ssreduction.txt", "w")
-    f.write("time ssdiff \n")
-    for e in finalresult:
-        f.write(str(e[0])+" "+str(e[1])+" \n")
-    f.close()
+    t=[]
+    sumss=[]
+    for results in finalresult:
+        t.append(results[0])
+        sumss.append(results[1])
+
+    # writting a hdf5 file for save the generated data
+    hf = h5py.File("statespacediff.h5", 'w')
+    hf.create_dataset("time",data=t)
+    hf.create_dataset("statespacediff",data=sumss)
+    hf.close()
 
 # print total execution time of the program
 print("\n \n Total time: "+str(time.time() - st)+" \n \n")
