@@ -23,7 +23,7 @@ import time
 ##########
 # INPUTS #
 ##########
-nproc = 2         
+nproc = 10         
 
 #start counting time
 st = time.time()
@@ -114,13 +114,36 @@ def compute_ssdiff(dire):
         idataori, rdataori = amrex.read_particle_data(dirori_, ptype="neutrinos", level_gridID=(level,gridID))
         idataper, rdataper = amrex.read_particle_data(dirper_, ptype="neutrinos", level_gridID=(level,gridID))
         
+        # sort the rdataori 
+        idori=[]
+        for p in rdataori:
+            iden=''
+            for pdata in p:
+                iden=iden+str(pdata)
+            idori.append(iden)
+
+        idx_ori=np.argsort(idori) 
+        rdataori=np.array(rdataori)[idx_ori]
+        
+        # sort the rdataper
+        idper=[]
+        for p in rdataper:
+            iden=''
+            for pdata in p:
+                iden=iden+str(pdata)
+            idper.append(iden)
+
+        idx_per=np.argsort(idper) 
+        rdataper=np.array(rdataper)[idx_per]
+
         # test if the particles in the original and perturbed file match position and momentum
-        assert np.all(rdataori[:,rkey["pos_x"]] == rdataper[:,rkey["pos_x"]]), 'x position do not match'
-        assert np.all(rdataori[:,rkey["pos_y"]] == rdataper[:,rkey["pos_y"]]), 'y position do not match'
-        assert np.all(rdataori[:,rkey["pos_z"]] == rdataper[:,rkey["pos_z"]]), 'z position do not match'
-        assert np.all(rdataori[:,rkey["pupx"]] == rdataper[:,rkey["pupx"]]), 'x momentum do not match'
-        assert np.all(rdataori[:,rkey["pupy"]] == rdataper[:,rkey["pupy"]]), 'y momentum do not match'
-        assert np.all(rdataori[:,rkey["pupz"]] == rdataper[:,rkey["pupz"]]), 'z momentum do not match'
+        assert np.all(rdataori[:,rkey["pos_x"]] == rdataper[:,rkey["pos_x"]]), '\n \n '+dire+' ---> x position do not match \n \n'
+        assert np.all(rdataori[:,rkey["pos_y"]] == rdataper[:,rkey["pos_y"]]), '\n \n '+dire+' ---> y position do not match \n \n'
+        assert np.all(rdataori[:,rkey["pos_z"]] == rdataper[:,rkey["pos_z"]]), '\n \n '+dire+' ---> z position do not match \n \n'
+        assert np.all(rdataori[:,rkey["pupx"]] == rdataper[:,rkey["pupx"]]), '\n \n '+dire+' ---> x momentum do not match \n \n'
+        assert np.all(rdataori[:,rkey["pupy"]] == rdataper[:,rkey["pupy"]]), '\n \n '+dire+' ---> y momentum do not match \n \n'
+        assert np.all(rdataori[:,rkey["pupz"]] == rdataper[:,rkey["pupz"]]), '\n \n '+dire+' ---> z momentum do not match \n \n'
+        assert np.all(rdataori[:,rkey["time"]] == rdataper[:,rkey["time"]]), '\n \n '+dire+' ---> t momentum do not match \n \n' 
 
         #loop over each components of the density matrix and sum the squere of the difference
         #of each componentes for the original and perturbed simulation
@@ -160,6 +183,10 @@ if __name__ == '__main__':
     hf.create_dataset("time",data=t)
     hf.create_dataset("statespacediff",data=sumss)
     hf.close()
+
+    print('\n \n')
+    for i in directories:
+        print('Done '+i)
 
 # print total execution time of the program
 print("\n \n Total time: "+str(time.time() - st)+" \n \n")
