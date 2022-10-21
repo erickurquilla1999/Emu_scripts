@@ -30,8 +30,10 @@ eds = emu.EmuDataset(directories[0])
 NF = eds.get_num_flavors()
 if NF==2:
     rkey, ikey = amrex.get_particle_keys()
+    labels=['pos_x','pos_y','pos_z', 'time', 'x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re', 'f01_Re', 'f01_Im', 'f11_Re', 'Nbar', 'Lbar', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f11_Rebar']
 if NF==3:
     rkey, ikey = amrex.get_3flavor_particle_keys()
+    labels=['pos_x','pos_y','pos_z','time','x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'Nbar' ,'Lbar', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
 
 class GridData(object):
     def __init__(self, ad):
@@ -92,9 +94,6 @@ def writetxtfiles(dire):
     # creating the file to save the particle data
     hf = h5py.File(str(dire)+".h5", 'w')
     
-    # hdf5 keys
-    labels=['pos_x','pos_y','pos_z','time','x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'Nbar' ,'Lbar', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
-
     for label in labels: 
         hf.create_dataset(label,data=[],maxshape=(None,),chunks=True)                                                                                                                                            
 
