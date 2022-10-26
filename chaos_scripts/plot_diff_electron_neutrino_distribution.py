@@ -2,13 +2,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import h5py
 
-# read data
+# read the directories
 
-hf=h5py.File('plt02000.h5', 'r')
-hg=h5py.File('../ori/plt02000.h5', 'r')
+directories = sorted(glob.glob("plt*/neutrinos"))
+directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
+
+# read data for the final step wrote in the simulation
+
+hf=h5py.File(directories[len(directories)-1], 'r')
+hg=h5py.File('../ori/'+directories[len(directories)-1], 'r')
+
+# save the electron electron component of the density matrix
 
 rhoee_ori=np.array(hf.get('f00_Re'))
 rhoee_per=np.array(hg.get('f00_Re'))
+
+# save the number of neutrinos n
 
 N_ori=np.array(hf.get('N'))
 N_per=np.array(hg.get('N'))
@@ -50,8 +59,4 @@ plt.ylabel(r'$N_{per}-N_{ori}$')
 plt.xlabel(r'$\rho_{ee}$')  
 plt.savefig('plots/diff_distribution_electron_neutrinos.pdf')   
 plt.clf()  
-
-
-
-
 

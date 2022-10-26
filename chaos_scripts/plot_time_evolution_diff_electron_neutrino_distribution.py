@@ -11,7 +11,7 @@ co=0
 
 plt.figure(figsize=(10, 5), dpi=200)
 
-for i in [80,15,0]:    
+for i in [directories[len(directories)-1],15,0]:    
 
 
         

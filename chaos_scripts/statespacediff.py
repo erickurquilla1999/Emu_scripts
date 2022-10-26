@@ -144,7 +144,13 @@ def compute_ssdiff(dire):
         assert np.all(rdataori[:,rkey["pupy"]] == rdataper[:,rkey["pupy"]]), '\n \n '+dire+' ---> y momentum do not match \n \n'
         assert np.all(rdataori[:,rkey["pupz"]] == rdataper[:,rkey["pupz"]]), '\n \n '+dire+' ---> z momentum do not match \n \n'
         assert np.all(rdataori[:,rkey["time"]] == rdataper[:,rkey["time"]]), '\n \n '+dire+' ---> t momentum do not match \n \n' 
+    
+        keys=['f00_Re','f01_Re','f01_Im','f02_Re','f02_Im','f11_Re','f12_Re','f12_Im','f22_Re','f00_Rebar','f01_Rebar','f01_Imbar','f02_Rebar','f02_Imbar','f11_Rebar','f12_Rebar','f12_Imbar','f22_Rebar']
 
+        for key in keys:
+            sumss=sumss+np.sum(np.square(rdataori[:,rkey[key]]-rdataper[:,rkey[key]]))
+
+        '''
         #loop over each components of the density matrix and sum the squere of the difference
         #of each componentes for the original and perturbed simulation
         for a in range(NF):
@@ -160,6 +166,7 @@ def compute_ssdiff(dire):
                 sumss+=coefficient*np.sum((rdataori[:,rkey[label]]-rdataper[:,rkey[label]])**2)
                 label = "f"+str(a)+str(b)+im
                 sumss+=nodiagonal*coefficient*np.sum((rdataori[:,rkey[label]]-rdataper[:,rkey[label]])**2)
+        '''
 
     #print the total execution time of this function
     print(str(dire)+" time: "+str(time.time() - cpt))

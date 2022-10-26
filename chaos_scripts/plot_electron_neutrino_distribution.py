@@ -4,8 +4,11 @@ import h5py
 
 # read data
 
-hf=h5py.File('plt00500.h5', 'r')
-hg=h5py.File('../ori/plt00500.h5', 'r')
+dir_per=sorted(glob.glob("plt*/neutrinos"))  
+dir_per=[dir_per[i].split('/')[0] for i in range(len(dir_per))] # remove "neutrinos"    
+
+hf=h5py.File(dir_per[len(dir_per)-1], 'r')
+hg=h5py.File('../ori/'+dir_per[len(dir_per)-1], 'r')
 
 rhoee_ori=np.array(hf.get('f00_Re'))
 rhoee_per=np.array(hg.get('f00_Re'))
@@ -52,5 +55,3 @@ plt.xlabel(r'$\rho_{ee}$')
 plt.legend()
 plt.savefig('plots/distribution_electron_neutrino.pdf')   
 plt.clf()  
-
-

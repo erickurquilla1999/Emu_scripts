@@ -78,7 +78,7 @@ class GridData(object):
 
         return idlist
 
-def writetxtfiles(dire):
+def writehdf5files(dire):
 
     eds = emu.EmuDataset(dire)
     t = eds.ds.current_time
@@ -115,6 +115,6 @@ def writetxtfiles(dire):
 # run the write hdf5 files function in parallel
 if __name__ == '__main__':
     pool = Pool(nproc)
-    finalresult=pool.map(writetxtfiles,directories)
+    finalresult=pool.map(writehdf5files,directories)
     for i in finalresult: print("completed ---> "+i)
     
