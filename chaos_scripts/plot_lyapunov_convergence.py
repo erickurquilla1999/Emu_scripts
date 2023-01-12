@@ -91,20 +91,34 @@ for directory in directories[1:]:
     hper.close()
     hori.close()
 
-# plotting magnitud of the state space vectors differences
-
-plt.plot(time,ssvecdiff)
-
-# find peaks
-
 peaks, _ = find_peaks(ssvecdiff,height=(1,100),distance=60)
-plt.scatter(np.array(time)[peaks], np.array(ssvecdiff)[peaks], marker="x")
+t=np.array(time)[peaks]
+p=np.array(ssvecdiff)[peaks]
+
+#t=t[5:]
+#p=p[5:]
+
+lambdas=[]
+
+for i in range(1,len(p)):
+    sumln=0
+    for j in range(1,i+1):
+        sumln=sumln+np.log(p[j]/1e-6)
+    lambdas.append(sumln/(t[i]-t[0]))
+
+#plt.plot(range(1,len(lambdas)+1),lambdas,label=str(lambdas[len(lambdas)-1]))
+#plt.plot(range(1,len(lambdas)+1),lambdas,"x")
+
+plt.plot(t[1:],lambdas,label=str(lambdas[len(lambdas)-1]))
+plt.plot(t[1:],lambdas,"x")
+
 #plt.plot(time[0:20],ssvecdiff[0:20])
 #plt.plot(time[20:40],ssvecdiff[20:40])
-plt.yscale('log')  
-plt.ylabel(r'$\left | \Delta \vec{r}_{ss} \right | $')
+#plt.yscale('log')  
+plt.legend()
+plt.ylabel(r'Lyapunov exponent ($\lambda$)')
 plt.xlabel(r'Time (s)')
-plt.savefig('plots/difference_state_space_vector.pdf')   
+plt.savefig('plots/lyapunov_convegence.pdf')   
 plt.clf() 
 
 

@@ -27,7 +27,7 @@ for dir in dir_per[1:]:
     # opening the original and the perturbed hdf5 files
 
     h5_per=h5py.File(dir+'.h5', 'r')
-    h5_ori=h5py.File('../ori/'+dir+'.h5', 'r')
+    h5_ori=h5py.File('../'+dir+'.h5', 'r')
     
     # saving the time value
 
@@ -68,7 +68,8 @@ names=['average_rho_ee.pdf','average_rho_uu.pdf','average_rho_tt.pdf','average_r
 for i in range(1,len(alldata_ori)):
     plt.plot(alldata_ori[0],np.absolute(np.array(alldata_ori[i])-np.array(alldata_per[i]))) 
     plt.ylabel(labels[i-1])
-    plt.xlabel(r'Time (s)') 
+    plt.xlabel(r'Time (s)')
+    plt.yscale('log') 
     plt.savefig('plots/difference_'+names[i-1])  
     plt.clf() 
 

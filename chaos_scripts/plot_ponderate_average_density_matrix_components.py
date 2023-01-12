@@ -14,8 +14,8 @@ keys3=['N','N','N','Nbar','Nbar','Nbar']
 dir_per=sorted(glob.glob("plt*/neutrinos"))
 dir_per=[dir_per[i].split('/')[0] for i in range(len(dir_per))] # remove "neutrinos" 
 
-dir_ori=sorted(glob.glob("../ori/plt*/neutrinos"))
-dir_ori=[dir_ori[i].split('/')[2] for i in range(len(dir_ori))] # remove "neutrinos" 
+dir_ori=sorted(glob.glob("../plt*/neutrinos"))
+dir_ori=[dir_ori[i].split('/')[1] for i in range(len(dir_ori))] # remove "neutrinos" 
 
 # Creating the arrays that will save the data
 # 0:time 1:rho_ee 2:rho_uu 3:rho_tt 4:rhobar_ee 5:rhobar_uu 6:rhobar_tt
@@ -48,7 +48,7 @@ for dir in dir_per:
 
 for dir in dir_ori:
      
-    hf = h5py.File('../ori/'+dir+'.h5', 'r')
+    hf = h5py.File('../'+dir+'.h5', 'r')
 
     alldata_ori[0].append(hf.get('time')[0])
 
@@ -93,7 +93,7 @@ plt.ylabel(r'$ \left < \left | \rho_{ii} \right | \right >$')
 plt.xlabel(r'Time (s)')
 #plt.yscale('log')
 plt.legend()
-plt.savefig('../ori/plots/pon_average_rho_all.pdf')
+plt.savefig('../plots/pon_average_rho_all.pdf')
 plt.clf()
 
 # looping over the antineutrino original data for plot each components in same plot
@@ -105,7 +105,7 @@ plt.ylabel(r'$ \left < \left | \bar{\rho}_{ii} \right | \right >$')
 plt.xlabel(r'Time (s)')
 #plt.yscale('log')
 plt.legend()
-plt.savefig('../ori/plots/pon_average_rhobar_all.pdf')
+plt.savefig('../plots/pon_average_rhobar_all.pdf')
 plt.clf()
 
 # looping over the neutrino perturbed data for plot each components in same plot

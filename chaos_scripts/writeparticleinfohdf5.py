@@ -24,6 +24,7 @@ nproc = 2
 
 directories = sorted(glob.glob("plt*/neutrinos"))
 directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
+#directories = directories[600:]
 
 # get NF
 eds = emu.EmuDataset(directories[0])
