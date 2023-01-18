@@ -18,6 +18,8 @@ keys_test=['pos_x','pos_y','pos_z','pupx','pupy','pupz','time']
 
 time=[]
 ssvecdiff=[]
+ssmagper=[]
+ssmagori=[]
 
 # loopping over the perturbed data
 
@@ -63,12 +65,24 @@ for directory in directories[1:]:
         # computing the magnitud of the difference of the state space vector
 
         ssdiff=0
+        ssmag_per=0
+        ssmag_ori=0
 
         for key in keys:
+            ssmag_per=ssmag_per+np.sum(np.square(np.array(hper.get(key))[index_per]))
+            ssmag_ori=ssmag_ori+np.sum(np.square(np.array(hori.get(key))[index_ori]))            
             ssdiff=ssdiff+np.sum(np.square(np.array(hper.get(key))[index_per]-np.array(hori.get(key))[index_ori]))
 
         ssvecdiff.append(np.sqrt(ssdiff))
-
+        ssmagper.append(np.sqrt(ssmag_per))
+        ssmagori.append(np.sqrt(ssmag_ori))
+        
+        print()
+        print(ssdiff)
+        print(str(np.sqrt(ssmag_per))+' ---> '+str(100*np.sqrt(ssdiff)/np.sqrt(ssmag_per))+' % ')
+        print(str(np.sqrt(ssmag_ori))+' ---> '+str(100*np.sqrt(ssdiff)/np.sqrt(ssmag_ori))+' % ')
+        print()
+        
     else:
 
         print(directory)
@@ -80,12 +94,24 @@ for directory in directories[1:]:
         # computing the magnitud of the difference of the state space vector
 
         ssdiff=0
+        ssmag_per=0
+        ssmag_ori=0
 
         for key in keys:
+            ssmag_per=ssmag_per+np.sum(np.square(np.array(hper.get(key))))
+            ssmag_ori=ssmag_ori+np.sum(np.square(np.array(hori.get(key))))            
             ssdiff=ssdiff+np.sum(np.square(np.array(hper.get(key))-np.array(hori.get(key))))
 
         ssvecdiff.append(np.sqrt(ssdiff))
-
+        ssmagper.append(np.sqrt(ssmag_per))
+        ssmagori.append(np.sqrt(ssmag_ori))
+        
+        print()
+        print(ssdiff)
+        print(str(np.sqrt(ssmag_per))+' ---> '+str(100*np.sqrt(ssdiff)/np.sqrt(ssmag_per))+' % ')
+        print(str(np.sqrt(ssmag_ori))+' ---> '+str(100*np.sqrt(ssdiff)/np.sqrt(ssmag_ori))+' % ')
+        print()
+ 
     # closing the hdf5 files
 
     hper.close()
@@ -95,11 +121,13 @@ for directory in directories[1:]:
 hf = h5py.File("state_space_difference.h5", 'w')
 hf.create_dataset("time",data=time)
 hf.create_dataset("statespacediff",data=ssvecdiff)
+hf.create_dataset("ssmagper",data=ssmagper)
+hf.create_dataset("ssmagori",data=ssmagori)
 hf.close()
 
 # plotting magnitud of the state space vectors differences
 
-plt.plot(time,ssvecdiff)
+# plt.plot(time,ssvecdiff)
 
 # find peaks
 
@@ -107,8 +135,32 @@ plt.plot(time,ssvecdiff)
 # plt.scatter(np.array(time)[peaks], np.array(ssvecdiff)[peaks], marker="x")
 #plt.plot(time[0:20],ssvecdiff[0:20])
 #plt.plot(time[20:40],ssvecdiff[20:40])
-plt.yscale('log')  
-plt.ylabel(r'$\left | \Delta \vec{r}_{ss} \right | $')
-plt.xlabel(r'Time (s)')
-plt.savefig('plots/difference_state_space_vector.pdf')   
+# plt.yscale('log')  
+# plt.ylabel(r'$\left | \Delta \vec{r}_{ss} \right | $')
+# plt.xlabel(r'Time (s)')
+# plt.savefig('plots/difference_state_space_vector.pdf')   
+# plt.clf() 
+
+fig, ax = plt.subplots()
+ax.plot(time,ssvecdiff)
+ax.set_xlabel(r'Time (s)')
+ax.set_ylabel(r'$\left | \Delta \vec{\rho}_{ss} \right | $')
+ax.set_yscale('log')
+ax.axvspan(time[0], 2.8e-10, alpha=0.5, color='beige')
+ax.axvspan(2.8e-10,time[len(time)-1], alpha=0.5, color='lightgrey')
+plt.show()
+fig.savefig('plots/difference_state_space_vector.pdf')
 plt.clf()
+
+
+fig, ax = plt.subplots()
+ax.plot(time,np.array(ssvecdiff)/np.array(ssmagori))
+ax.set_xlabel(r'Time (s)')
+ax.set_ylabel(r'$ \left | \vec{\rho}_{ss} \right | / \left | \Delta \vec{\rho}_{ss} \right | $')
+ax.set_yscale('log')
+ax.axvspan(time[0], 2.8e-10, alpha=0.5, color='beige')
+ax.axvspan(2.8e-10,time[len(time)-1], alpha=0.5, color='lightgrey')
+plt.show()
+fig.savefig('plots/infolose.pdf')
+plt.clf()
+
