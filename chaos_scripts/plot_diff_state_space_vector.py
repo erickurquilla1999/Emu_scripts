@@ -91,22 +91,24 @@ for directory in directories[1:]:
     hper.close()
     hori.close()
 
+# writting a hdf5 file for save the generated data
+hf = h5py.File("state_space_difference.h5", 'w')
+hf.create_dataset("time",data=time)
+hf.create_dataset("statespacediff",data=ssvecdiff)
+hf.close()
+
 # plotting magnitud of the state space vectors differences
 
 plt.plot(time,ssvecdiff)
 
 # find peaks
 
-peaks, _ = find_peaks(ssvecdiff,height=(1,100),distance=60)
-plt.scatter(np.array(time)[peaks], np.array(ssvecdiff)[peaks], marker="x")
+# peaks, _ = find_peaks(ssvecdiff,height=(1,100),distance=60)
+# plt.scatter(np.array(time)[peaks], np.array(ssvecdiff)[peaks], marker="x")
 #plt.plot(time[0:20],ssvecdiff[0:20])
 #plt.plot(time[20:40],ssvecdiff[20:40])
 plt.yscale('log')  
 plt.ylabel(r'$\left | \Delta \vec{r}_{ss} \right | $')
 plt.xlabel(r'Time (s)')
 plt.savefig('plots/difference_state_space_vector.pdf')   
-plt.clf() 
-
-
-
-
+plt.clf()
