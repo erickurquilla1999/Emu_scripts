@@ -20,11 +20,23 @@ import scipy.special
 ##########
 # INPUTS #
 ##########
-nproc = 2
+nproc = 16
 
-directories = sorted(glob.glob("plt*/neutrinos"))
-directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
-#directories = directories[600:]
+dirh5 = sorted(glob.glob("*.h5"))
+dirh5 = [dirh5[i].split('.')[0] for i in range(len(dirh5))]
+dirall = sorted(glob.glob("plt*/neutrinos"))
+dirall = [dirall[i].split('/')[0] for i in range(len(dirall))] # remove "neutrinos"
+
+directories=[]
+
+for dir1 in dirall:
+    thereis=0
+    for dir2 in dirh5:
+        if dir1==dir2:
+            thereis=1
+            break
+    if thereis==0:
+        directories.append(dir1)
 
 # get NF
 eds = emu.EmuDataset(directories[0])
