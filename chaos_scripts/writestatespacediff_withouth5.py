@@ -25,8 +25,6 @@ nproc = 1
 directories = sorted(glob.glob("plt*/neutrinos"))
 directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
 
-print(directories)
-
 # get NF
 eds = emu.EmuDataset(directories[0])
 NF = eds.get_num_flavors()
@@ -91,26 +89,32 @@ def writehdf5files(dire):
     nlevels = len(header.grids)
     assert nlevels==1
     level = 0
-    ngrids = len(header.grids[level])                                                                                                                                          
-
+    ngrids = len(header.grids[level])                                                                                                                        
+    
     data_given=[]
     data_per=[]
-
-    # loop over all cells within each grid
+    
+    number_of_particles=0
+    
     for gridID in range(ngrids):
         
-        # read particle data on a single grid
-        idata_given, rdata_given = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
-        idata_per, rdata_per = amrex.read_particle_data('../'+dire, ptype="neutrinos", level_gridID=(level,gridID))
-
-        for i in range(len(rdata_given)):
-            data_given.append(rdata_given[i])
-            data_per.append(rdata_per[i])
-
+        idata_given, rdata_given = amrex.read_particle_data('../'+dire, ptype="neutrinos", level_gridID=(level,gridID))
+        idata_per, rdata_per = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
+        
+        number_of_particles=number_of_particles+len(rdata_given)
+        
+        data_given.append(rdata_given)
+        data_per.append(rdata_per)
+    
     data_given=np.array(data_given)
     data_per=np.array(data_per)
 
-    labels_to_compare=[0,1,2,3,4,5,6,7,8,9,10,11,12,17,18]
+    number_of_particles_variables=len(data_given[0][0])
+    
+    data_given=np.reshape(data_given,(number_of_particles,number_of_particles_variables))
+    data_per=np.reshape(data_per,(number_of_particles,number_of_particles_variables))
+    
+    labels_to_compare=[rkey['pos_x'],rkey['pos_y'],rkey['pos_z'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt']]
 
     identifier_given=[]
     identifier_per=[]
@@ -127,18 +131,17 @@ def writehdf5files(dire):
         identifier_given.append(given_string)
         identifier_per.append(per_string)
     
-    identifier_given=np.array(identifier_per)
+    identifier_given=np.array(identifier_given)
     identifier_per=np.array(identifier_per)
-
-    index_given=np.argsort(identifier_per)
+    
+    index_given=np.argsort(identifier_given)
     index_per=np.argsort(identifier_per)
-    
-    identifier_given=identifier_given[index_given]
-    identifier_per=identifier_per[index_per]
 
-    if not(np.all(identifier_given==identifier_per)):
-        print('error: particles does not match')
-    
+    assert np.all(identifier_given[index_given]==identifier_per[index_per]),'\n \n ---> ending execution: particles do not match \n \n'
+
+    data_given=data_given[index_given]
+    data_per=data_per[index_per]
+
     return dire
 
 # run the write hdf5 files function in parallel
