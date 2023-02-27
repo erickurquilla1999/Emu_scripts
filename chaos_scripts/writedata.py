@@ -106,6 +106,11 @@ def writehdf5files(dire):
         data_given.append(rdata_given)
         data_per.append(rdata_per)
     
+        del idata_given
+        del rdata_given
+        del idata_per
+        del rdata_per
+    
     data_given=np.array(data_given)
     data_per=np.array(data_per)
 
@@ -114,6 +119,9 @@ def writehdf5files(dire):
     data_given=np.reshape(data_given,(number_of_particles,number_of_particles_variables))
     data_per=np.reshape(data_per,(number_of_particles,number_of_particles_variables))
     
+    del number_of_particles
+    del number_of_particles_variables
+
     labels_to_compare=[rkey['pos_x'],rkey['pos_y'],rkey['pos_z'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt']]
 
     identifier_given=[]
@@ -141,6 +149,46 @@ def writehdf5files(dire):
 
     data_given=data_given[index_given]
     data_per=data_per[index_per]
+
+    del identifier_given
+    del identifier_per
+    del index_given
+    del index_per
+    del labels_to_compare
+
+    
+    keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+
+    
+    hf = h5py.File(str(dire)+".h5", 'w')
+
+    hf.create_dataset('time', data=t)
+
+    ssmag_per=0
+    ssmag_ori=0
+    ssdiff=0
+
+    for key in keys:
+        
+        hf.create_dataset(key+'_given', data=np.average(data_given[:,rkey[key]]))
+        hf.create_dataset(key+'_per', data=np.average(data_per[:,rkey[key]]))
+
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[key]]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[key]]))
+        ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[key]]-data_given[:,rkey[key]]))
+
+    hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
+    hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
+    hf.create_dataset('state_space_vector_magnitud_given', data=np.sqrt(ssmag_ori))
+
+
+    hf.close()
+    
+    del data_per
+    del data_given
+    del ssmag_per
+    del ssmag_ori
+    del ssdiff
 
     return dire
 
