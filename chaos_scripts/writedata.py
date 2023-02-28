@@ -25,8 +25,23 @@ nproc = 1
 do_average=1
 do_ssdiff=1
 
-directories = sorted(glob.glob("plt*/neutrinos"))
-directories = [directories[i].split('/')[0] for i in range(len(directories))] # remove "neutrinos"
+directories_h5 = sorted(glob.glob("*.h5"))
+directories_h5 = [directories_h5[i].split('.')[0] for i in range(len(directories_h5))]
+directories_all = sorted(glob.glob("plt*/neutrinos"))
+directories_all = [directories_all[i].split('/')[0] for i in range(len(directories_all))]
+
+directories=[]
+
+for dir1 in directories_all:
+    thereis=0
+    for dir2 in directories_h5:
+        if dir1==dir2:
+            thereis=1
+            break
+    if thereis==0:
+        directories.append(dir1)
+
+assert len(directories)!=0,'\n \n ---> ending execution: plt*.h5 already computed \n \n'
 
 # get NF
 eds = emu.EmuDataset(directories[0])
@@ -96,6 +111,10 @@ def writehdf5files(dire):
 
     particle_index=3467                                                                                                                        
 
+    #########################################################################
+    # do average and ss diff
+    #########################################################################
+
     if do_average==1 and do_ssdiff==1:
 
         data_given=[]
@@ -129,7 +148,7 @@ def writehdf5files(dire):
         del number_of_particles
         del number_of_particles_variables
 
-        labels_to_compare=[rkey['pos_x'],rkey['pos_y'],rkey['pos_z'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt']]
+        labels_to_compare=[rkey['N'],rkey['Nbar'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt'],rkey['pos_x'],rkey['pos_y'],rkey['pos_z']]
 
         identifier_given=[]
         identifier_per=[]
@@ -197,6 +216,10 @@ def writehdf5files(dire):
         del ssmag_ori
         del ssdiff
 
+    #########################################################################
+    # do average
+    #########################################################################
+
     if do_average==1 and do_ssdiff==0:
 
         data=[]
@@ -229,8 +252,6 @@ def writehdf5files(dire):
 
         hf.create_dataset('time', data=t)
 
-        hf.create_dataset('single_particle', data=data[particle_index])
-
         for key in keys:
             
             hf.create_dataset(key, data=np.average(data[:,rkey[key]]))
@@ -238,6 +259,10 @@ def writehdf5files(dire):
         hf.close()
 
         del data
+
+    #########################################################################
+    # do ss diff
+    #########################################################################
 
     if do_average==0 and do_ssdiff==1:
 
@@ -272,7 +297,7 @@ def writehdf5files(dire):
         del number_of_particles
         del number_of_particles_variables
 
-        labels_to_compare=[rkey['pos_x'],rkey['pos_y'],rkey['pos_z'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt']]
+        labels_to_compare=[rkey['N'],rkey['Nbar'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt'],rkey['pos_x'],rkey['pos_y'],rkey['pos_z']]
 
         identifier_given=[]
         identifier_per=[]
