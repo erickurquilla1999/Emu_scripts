@@ -92,7 +92,9 @@ def writehdf5files(dire):
     nlevels = len(header.grids)
     assert nlevels==1
     level = 0
-    ngrids = len(header.grids[level])                                                                                                                        
+    ngrids = len(header.grids[level])
+
+    particle_index=3467                                                                                                                        
 
     if do_average==1 and do_ssdiff==1:
 
@@ -167,6 +169,9 @@ def writehdf5files(dire):
 
         hf.create_dataset('time', data=t)
 
+        hf.create_dataset('single_particle_given', data=data_given[particle_index])
+        hf.create_dataset('single_particle_per', data=data_per[particle_index])
+
         ssmag_per=0
         ssmag_ori=0
         ssdiff=0
@@ -223,6 +228,8 @@ def writehdf5files(dire):
         hf = h5py.File(str(dire)+".h5", 'w')
 
         hf.create_dataset('time', data=t)
+
+        hf.create_dataset('single_particle', data=data[particle_index])
 
         for key in keys:
             
@@ -314,6 +321,8 @@ def writehdf5files(dire):
         hf = h5py.File(str(dire)+".h5", 'w')
 
         hf.create_dataset('time', data=t)
+        hf.create_dataset('single_particle_given', data=data_given[particle_index])
+        hf.create_dataset('single_particle_per', data=data_per[particle_index])
         hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
         hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
         hf.create_dataset('state_space_vector_magnitud_given', data=np.sqrt(ssmag_ori))
