@@ -20,10 +20,14 @@ import scipy.special
 ##########
 # INPUTS #
 ##########
-nproc = 1
 
+nproc = 1
 do_average=1
 do_ssdiff=1
+
+##########
+# creating a list of directories of the data to be read #
+##########
 
 directories_h5 = sorted(glob.glob("*.h5"))
 directories_h5 = [directories_h5[i].split('.')[0] for i in range(len(directories_h5))]
@@ -42,6 +46,10 @@ for dir1 in directories_all:
         directories.append(dir1)
 
 assert len(directories)!=0,'\n \n ---> ending execution: plt*.h5 already computed \n \n'
+
+##########
+# for read emu data stuff #
+##########
 
 # get NF
 eds = emu.EmuDataset(directories[0])
@@ -96,6 +104,10 @@ class GridData(object):
 
         return idlist
 
+##########
+# function that do the work #
+##########
+
 def writehdf5files(dire):
 
     eds = emu.EmuDataset(dire)
@@ -117,11 +129,14 @@ def writehdf5files(dire):
 
     if do_average==1 and do_ssdiff==1:
 
+        #these list will save the particles data
         data_given=[]
         data_per=[]
 
+        #variable to count the number of particles
         number_of_particles=0
 
+        #loop over the grid cells and save al the particles data 
         for gridID in range(ngrids):
             
             idata_given, rdata_given = amrex.read_particle_data('../'+dire, ptype="neutrinos", level_gridID=(level,gridID))
@@ -132,6 +147,7 @@ def writehdf5files(dire):
             data_given.append(rdata_given)
             data_per.append(rdata_per)
 
+            #delete the data to save memory 
             del idata_given
             del rdata_given
             del idata_per
@@ -140,19 +156,25 @@ def writehdf5files(dire):
         data_given=np.array(data_given)
         data_per=np.array(data_per)
 
+        #save the number of variables that were stores for each particle
         number_of_particles_variables=len(data_given[0][0])
 
+        #reshape the data array in order to be a single array (not arrays of arrays)
         data_given=np.reshape(data_given,(number_of_particles,number_of_particles_variables))
         data_per=np.reshape(data_per,(number_of_particles,number_of_particles_variables))
 
+        #delete some varibles to save memory 
         del number_of_particles
         del number_of_particles_variables
 
+        #these labels will be used for create a unique identifies for each particle in the simulation
         labels_to_compare=[rkey['N'],rkey['Nbar'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt'],rkey['pos_x'],rkey['pos_y'],rkey['pos_z']]
 
+        #list that will store each particle identifier
         identifier_given=[]
         identifier_per=[]
 
+        #creating the indentifiers
         for i in range(len(data_given)):
             
             given_string=''
@@ -168,38 +190,60 @@ def writehdf5files(dire):
         identifier_given=np.array(identifier_given)
         identifier_per=np.array(identifier_per)
 
+        #creating an index to sorting the data according to the identifiers
         index_given=np.argsort(identifier_given)
         index_per=np.argsort(identifier_per)
 
+        #stop the code is the sort data does match each other(given data and perturbed data)
         assert np.all(identifier_given[index_given]==identifier_per[index_per]),'\n \n ---> ending execution: particles do not match \n \n'
 
+        #sorting the data
         data_given=data_given[index_given]
         data_per=data_per[index_per]
 
+        #deleting some varibles to save memory
         del identifier_given
         del identifier_per
         del index_given
         del index_per
         del labels_to_compare
 
-        keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
-
+        #creating a hdf5 diles to save the particles data
         hf = h5py.File(str(dire)+".h5", 'w')
 
+        #saving time
         hf.create_dataset('time', data=t)
 
+        #saving all of the information of a single particle
         hf.create_dataset('single_particle_given', data=data_given[particle_index])
         hf.create_dataset('single_particle_per', data=data_per[particle_index])
+
+        #this keys will be used to compute the average of all the components of the density matrices
+        keys_for_average=[['f00_Re'], ['f01_Re', 'f01_Im'], ['f02_Re', 'f02_Im'], ['f11_Re'], ['f12_Re', 'f12_Im'] ,['f22_Re'], ['f00_Rebar'], ['f01_Rebar', 'f01_Imbar'], ['f02_Rebar', 'f02_Imbar'],['f11_Rebar'],['f12_Rebar' ,'f12_Imbar'],['f22_Rebar']]
+
+        #loogping over all the keys
+        for key in keys_for_average:
+            
+            #computed the average value over the entire domaim of the diagonal components of the density matrix
+            if len(key)==1: 
+                hf.create_dataset(key[0]+'_given', data=np.average(data_given[:,rkey[key[0]]]))
+                hf.create_dataset(key[0]+'_per', data=np.average(data_per[:,rkey[key[0]]]))
+
+            #computed the average value over the entire domaim of the non-diagonal components of the density matrix
+            if len(key)==2: 
+                hf.create_dataset(key[0]+'_given', data=np.average(np.sqrt(np.square(data_given[:,rkey[key[0]]])+np.square(data_given[:,rkey[key[1]]]))))
+                hf.create_dataset(key[0]+'_per', data=np.average(np.sqrt(np.square(data_per[:,rkey[key[0]]])+np.square(data_per[:,rkey[key[1]]]))))
+
+        #this keys will be used to compute the state space diference vector magnitud
+        keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
 
         ssmag_per=0
         ssmag_ori=0
         ssdiff=0
 
+        #computing the state space diference vector magnitud
         for key in keys:
             
-            hf.create_dataset(key+'_given', data=np.average(data_given[:,rkey[key]]))
-            hf.create_dataset(key+'_per', data=np.average(data_per[:,rkey[key]]))
-
             ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[key]]))
             ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[key]]))
             ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[key]]-data_given[:,rkey[key]]))
@@ -209,156 +253,157 @@ def writehdf5files(dire):
         hf.create_dataset('state_space_vector_magnitud_given', data=np.sqrt(ssmag_ori))
 
         hf.close()
-
+        
+        # deleting the data to save memory
         del data_per
         del data_given
         del ssmag_per
         del ssmag_ori
         del ssdiff
 
-    #########################################################################
-    # do average
-    #########################################################################
+    # #########################################################################
+    # # do average
+    # #########################################################################
 
-    if do_average==1 and do_ssdiff==0:
+    # if do_average==1 and do_ssdiff==0:
 
-        data=[]
+    #     data=[]
 
-        number_of_particles=0
+    #     number_of_particles=0
 
-        for gridID in range(ngrids):
+    #     for gridID in range(ngrids):
             
-            idata, rdata = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
+    #         idata, rdata = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
             
-            number_of_particles=number_of_particles+len(rdata)
+    #         number_of_particles=number_of_particles+len(rdata)
             
-            data.append(rdata)
+    #         data.append(rdata)
 
-            del idata
-            del rdata
+    #         del idata
+    #         del rdata
 
-        data=np.array(data)
+    #     data=np.array(data)
 
-        number_of_particles_variables=len(data[0][0])
+    #     number_of_particles_variables=len(data[0][0])
 
-        data=np.reshape(data,(number_of_particles,number_of_particles_variables))
+    #     data=np.reshape(data,(number_of_particles,number_of_particles_variables))
 
-        del number_of_particles
-        del number_of_particles_variables
+    #     del number_of_particles
+    #     del number_of_particles_variables
 
-        keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+    #     keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
 
-        hf = h5py.File(str(dire)+".h5", 'w')
+    #     hf = h5py.File(str(dire)+".h5", 'w')
 
-        hf.create_dataset('time', data=t)
+    #     hf.create_dataset('time', data=t)
 
-        for key in keys:
+    #     for key in keys:
             
-            hf.create_dataset(key, data=np.average(data[:,rkey[key]]))
+    #         hf.create_dataset(key, data=np.average(data[:,rkey[key]]))
 
-        hf.close()
+    #     hf.close()
 
-        del data
+    #     del data
 
-    #########################################################################
-    # do ss diff
-    #########################################################################
+    # #########################################################################
+    # # do ss diff
+    # #########################################################################
 
-    if do_average==0 and do_ssdiff==1:
+    # if do_average==0 and do_ssdiff==1:
 
-        data_given=[]
-        data_per=[]
+    #     data_given=[]
+    #     data_per=[]
 
-        number_of_particles=0
+    #     number_of_particles=0
 
-        for gridID in range(ngrids):
+    #     for gridID in range(ngrids):
             
-            idata_given, rdata_given = amrex.read_particle_data('../'+dire, ptype="neutrinos", level_gridID=(level,gridID))
-            idata_per, rdata_per = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
+    #         idata_given, rdata_given = amrex.read_particle_data('../'+dire, ptype="neutrinos", level_gridID=(level,gridID))
+    #         idata_per, rdata_per = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
             
-            number_of_particles=number_of_particles+len(rdata_given)
+    #         number_of_particles=number_of_particles+len(rdata_given)
             
-            data_given.append(rdata_given)
-            data_per.append(rdata_per)
+    #         data_given.append(rdata_given)
+    #         data_per.append(rdata_per)
 
-            del idata_given
-            del rdata_given
-            del idata_per
-            del rdata_per
+    #         del idata_given
+    #         del rdata_given
+    #         del idata_per
+    #         del rdata_per
 
-        data_given=np.array(data_given)
-        data_per=np.array(data_per)
+    #     data_given=np.array(data_given)
+    #     data_per=np.array(data_per)
 
-        number_of_particles_variables=len(data_given[0][0])
+    #     number_of_particles_variables=len(data_given[0][0])
 
-        data_given=np.reshape(data_given,(number_of_particles,number_of_particles_variables))
-        data_per=np.reshape(data_per,(number_of_particles,number_of_particles_variables))
+    #     data_given=np.reshape(data_given,(number_of_particles,number_of_particles_variables))
+    #     data_per=np.reshape(data_per,(number_of_particles,number_of_particles_variables))
 
-        del number_of_particles
-        del number_of_particles_variables
+    #     del number_of_particles
+    #     del number_of_particles_variables
 
-        labels_to_compare=[rkey['N'],rkey['Nbar'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt'],rkey['pos_x'],rkey['pos_y'],rkey['pos_z']]
+    #     labels_to_compare=[rkey['N'],rkey['Nbar'],rkey['time'],rkey['pupx'],rkey['pupy'],rkey['pupz'],rkey['pupt'],rkey['pos_x'],rkey['pos_y'],rkey['pos_z']]
 
-        identifier_given=[]
-        identifier_per=[]
+    #     identifier_given=[]
+    #     identifier_per=[]
 
-        for i in range(len(data_given)):
+    #     for i in range(len(data_given)):
             
-            given_string=''
-            per_string=''
+    #         given_string=''
+    #         per_string=''
             
-            for j in labels_to_compare:
-                given_string=given_string+str(data_given[i][j])
-                per_string=per_string+str(data_per[i][j])
+    #         for j in labels_to_compare:
+    #             given_string=given_string+str(data_given[i][j])
+    #             per_string=per_string+str(data_per[i][j])
 
-            identifier_given.append(given_string)
-            identifier_per.append(per_string)
+    #         identifier_given.append(given_string)
+    #         identifier_per.append(per_string)
 
-        identifier_given=np.array(identifier_given)
-        identifier_per=np.array(identifier_per)
+    #     identifier_given=np.array(identifier_given)
+    #     identifier_per=np.array(identifier_per)
 
-        index_given=np.argsort(identifier_given)
-        index_per=np.argsort(identifier_per)
+    #     index_given=np.argsort(identifier_given)
+    #     index_per=np.argsort(identifier_per)
 
-        assert np.all(identifier_given[index_given]==identifier_per[index_per]),'\n \n ---> ending execution: particles do not match \n \n'
+    #     assert np.all(identifier_given[index_given]==identifier_per[index_per]),'\n \n ---> ending execution: particles do not match \n \n'
 
-        data_given=data_given[index_given]
-        data_per=data_per[index_per]
+    #     data_given=data_given[index_given]
+    #     data_per=data_per[index_per]
 
-        del identifier_given
-        del identifier_per
-        del index_given
-        del index_per
-        del labels_to_compare
+    #     del identifier_given
+    #     del identifier_per
+    #     del index_given
+    #     del index_per
+    #     del labels_to_compare
 
-        keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+    #     keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
 
-        ssmag_per=0
-        ssmag_ori=0
-        ssdiff=0
+    #     ssmag_per=0
+    #     ssmag_ori=0
+    #     ssdiff=0
 
-        for key in keys:
+    #     for key in keys:
             
-            ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[key]]))
-            ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[key]]))
-            ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[key]]-data_given[:,rkey[key]]))
+    #         ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[key]]))
+    #         ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[key]]))
+    #         ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[key]]-data_given[:,rkey[key]]))
 
-        hf = h5py.File(str(dire)+".h5", 'w')
+    #     hf = h5py.File(str(dire)+".h5", 'w')
 
-        hf.create_dataset('time', data=t)
-        hf.create_dataset('single_particle_given', data=data_given[particle_index])
-        hf.create_dataset('single_particle_per', data=data_per[particle_index])
-        hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
-        hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
-        hf.create_dataset('state_space_vector_magnitud_given', data=np.sqrt(ssmag_ori))
+    #     hf.create_dataset('time', data=t)
+    #     hf.create_dataset('single_particle_given', data=data_given[particle_index])
+    #     hf.create_dataset('single_particle_per', data=data_per[particle_index])
+    #     hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
+    #     hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
+    #     hf.create_dataset('state_space_vector_magnitud_given', data=np.sqrt(ssmag_ori))
 
-        hf.close()
+    #     hf.close()
 
-        del data_per
-        del data_given
-        del ssmag_per
-        del ssmag_ori
-        del ssdiff
+    #     del data_per
+    #     del data_given
+    #     del ssmag_per
+    #     del ssmag_ori
+    #     del ssdiff
 
     return dire
 
