@@ -24,6 +24,7 @@ import scipy.special
 nproc = 1
 do_average=1
 do_ssdiff=1
+particle_index=1
 
 ##########
 # creating a list of directories of the data to be read #
@@ -119,9 +120,7 @@ def writehdf5files(dire):
     nlevels = len(header.grids)
     assert nlevels==1
     level = 0
-    ngrids = len(header.grids[level])
-
-    particle_index=3467                                                                                                                        
+    ngrids = len(header.grids[level])                                                                                                                     
 
     #########################################################################
     # do average and ss diff
@@ -139,7 +138,7 @@ def writehdf5files(dire):
         #loop over the grid cells and save al the particles data 
         for gridID in range(ngrids):
             
-            idata_given, rdata_given = amrex.read_particle_data('../'+dire, ptype="neutrinos", level_gridID=(level,gridID))
+            idata_given, rdata_given = amrex.read_particle_data('../'+dire[0:8], ptype="neutrinos", level_gridID=(level,gridID))
             idata_per, rdata_per = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
             
             number_of_particles=number_of_particles+len(rdata_given)
