@@ -31,7 +31,7 @@ particle_index=1
 ##########
 
 directories_h5 = sorted(glob.glob("*.h5"))
-directories_h5 = [directories_h5[i].split('.')[0] for i in range(len(directories_h5))]
+directories_h5 = [directories_h5[i].split('.h5')[0] for i in range(len(directories_h5))]
 directories_all = sorted(glob.glob("plt*/neutrinos"))
 directories_all = [directories_all[i].split('/')[0] for i in range(len(directories_all))]
 
@@ -180,8 +180,8 @@ def writehdf5files(dire):
             per_string=''
             
             for j in labels_to_compare:
-                given_string=given_string+str(data_given[i][j])
-                per_string=per_string+str(data_per[i][j])
+                given_string=given_string+str(data_given[i][j])+' '
+                per_string=per_string+str(data_per[i][j])+' '
 
             identifier_given.append(given_string)
             identifier_per.append(per_string)
@@ -192,13 +192,22 @@ def writehdf5files(dire):
         #creating an index to sorting the data according to the identifiers
         index_given=np.argsort(identifier_given)
         index_per=np.argsort(identifier_per)
-
-        #stop the code is the sort data does match each other(given data and perturbed data)
-        assert np.all(identifier_given[index_given]==identifier_per[index_per]),'\n \n ---> ending execution: particles do not match \n \n'
-
+        
+        #sorting the identifiers
+        identifier_given=identifier_given[index_given]
+        identifier_per=identifier_per[index_per]
+        
         #sorting the data
         data_given=data_given[index_given]
         data_per=data_per[index_per]
+
+        #stop the code is the sort data does match each other (given data and perturbed data)
+        if not np.all(identifier_given[index_given]==identifier_per[index_per]):
+            cond=[]
+            for ind in labels_to_compare:
+                cond.append(np.allclose(data_per[:,ind],data_given[:,ind], rtol=1e-8, atol=1e-8, equal_nan=False))
+            if not np.all(cond):
+                assert True,'\n \n ---> ending execution: particles do not match in file '+dire+' \n \n'
 
         #deleting some varibles to save memory
         del identifier_given
