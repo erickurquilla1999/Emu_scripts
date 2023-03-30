@@ -269,49 +269,70 @@ def writehdf5files(dire):
         del ssmag_ori
         del ssdiff
 
-    # #########################################################################
-    # # do average
-    # #########################################################################
+    #########################################################################
+    # do average
+    #########################################################################
 
-    # if do_average==1 and do_ssdiff==0:
+    if do_average==1 and do_ssdiff==0:
 
-    #     data=[]
+        #these list will save the particles data
+        data_given=[]
 
-    #     number_of_particles=0
+        #variable to count the number of particles
+        number_of_particles=0
 
-    #     for gridID in range(ngrids):
+        #loop over the grid cells and save al the particles data 
+        for gridID in range(ngrids):
             
-    #         idata, rdata = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
+            idata_given, rdata_given = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
             
-    #         number_of_particles=number_of_particles+len(rdata)
+            number_of_particles=number_of_particles+len(rdata_given)
             
-    #         data.append(rdata)
+            data_given.append(rdata_given)
 
-    #         del idata
-    #         del rdata
+            #delete the data to save memory 
+            del idata_given
+            del rdata_given
 
-    #     data=np.array(data)
+        data_given=np.array(data_given)
 
-    #     number_of_particles_variables=len(data[0][0])
+        #save the number of variables that were stores for each particle
+        number_of_particles_variables=len(data_given[0][0])
 
-    #     data=np.reshape(data,(number_of_particles,number_of_particles_variables))
+        #reshape the data array in order to be a single array (not arrays of arrays)
+        data_given=np.reshape(data_given,(number_of_particles,number_of_particles_variables))
 
-    #     del number_of_particles
-    #     del number_of_particles_variables
+        #delete some varibles to save memory 
+        del number_of_particles
+        del number_of_particles_variables
 
-    #     keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+        #creating a hdf5 diles to save the particles data
+        hf = h5py.File(str(dire)+".h5", 'w')
 
-    #     hf = h5py.File(str(dire)+".h5", 'w')
+        #saving time
+        hf.create_dataset('time', data=t)
 
-    #     hf.create_dataset('time', data=t)
+        #saving all of the information of a single particle
+        hf.create_dataset('single_particle_given', data=data_given[particle_index])
 
-    #     for key in keys:
+        #this keys will be used to compute the average of all the components of the density matrices
+        keys_for_average=[['f00_Re'], ['f01_Re', 'f01_Im'], ['f02_Re', 'f02_Im'], ['f11_Re'], ['f12_Re', 'f12_Im'] ,['f22_Re'], ['f00_Rebar'], ['f01_Rebar', 'f01_Imbar'], ['f02_Rebar', 'f02_Imbar'],['f11_Rebar'],['f12_Rebar' ,'f12_Imbar'],['f22_Rebar']]
+
+        #loogping over all the keys
+        for key in keys_for_average:
             
-    #         hf.create_dataset(key, data=np.average(data[:,rkey[key]]))
+            #computed the average value over the entire domaim of the diagonal components of the density matrix
+            if len(key)==1: 
+                hf.create_dataset(key[0]+'_given', data=np.average(data_given[:,rkey[key[0]]]))
 
-    #     hf.close()
+            #computed the average value over the entire domaim of the non-diagonal components of the density matrix
+            if len(key)==2: 
+                hf.create_dataset(key[0]+'_given', data=np.average(np.sqrt(np.square(data_given[:,rkey[key[0]]])+np.square(data_given[:,rkey[key[1]]]))))
 
-    #     del data
+        hf.close()
+        
+        # deleting the data to save memory
+        del data_given
 
     # #########################################################################
     # # do ss diff
