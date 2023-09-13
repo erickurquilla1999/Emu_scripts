@@ -252,6 +252,8 @@ def writehdf5files(dire):
                 hf.create_dataset(key[0]+'_given', data=np.average(data_given[:,rkey[NorNbarKey]]*np.sqrt(np.square(data_given[:,rkey[key[0]]])+np.square(data_given[:,rkey[key[1]]]))))
                 hf.create_dataset(key[0]+'_per', data=np.average(data_per[:,rkey[NorNbarKey]]*np.sqrt(np.square(data_per[:,rkey[key[0]]])+np.square(data_per[:,rkey[key[1]]]))))
 
+            countforNorNbar=countforNorNbar+1
+
         #this keys will be used to compute the state space diference vector magnitud
         keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
         #keys=['f00_Re', 'f01_Re', 'f01_Im', 'f11_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f11_Rebar']
@@ -259,12 +261,23 @@ def writehdf5files(dire):
         ssmag_ori=0
         ssdiff=0
 
+        #count the index of the array keys in the next loop
+        countforNorNbar=0
+
         #computing the state space diference vector magnitud
         for key in keys:
             
-            ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[key]]))
-            ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[key]]))
-            ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[key]]-data_given[:,rkey[key]]))
+            # determine what key use if N for number of neutrino or Nbar for number of antineutrinos
+            if countforNorNbar<=8:
+                NorNbarKey='N'
+            if countforNorNbar>8:
+                NorNbarKey='Nbar'
+
+            ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[NorNbarKey]]*data_per[:,rkey[key]]))
+            ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[NorNbarKey]]*data_given[:,rkey[key]]))
+            ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[NorNbarKey]]*data_per[:,rkey[key]]-data_given[:,rkey[NorNbarKey]]*data_given[:,rkey[key]]))
+
+            countforNorNbar=countforNorNbar+1
 
         hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
         hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
