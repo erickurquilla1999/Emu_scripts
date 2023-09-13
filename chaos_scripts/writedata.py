@@ -138,7 +138,7 @@ def writehdf5files(dire):
         #loop over the grid cells and save al the particles data 
         for gridID in range(ngrids):
             
-            idata_given, rdata_given = amrex.read_particle_data('../'+dire[0:8], ptype="neutrinos", level_gridID=(level,gridID))
+            idata_given, rdata_given = amrex.read_particle_data('../'+dire.split('.')[0], ptype="neutrinos", level_gridID=(level,gridID))
             idata_per, rdata_per = amrex.read_particle_data(dire, ptype="neutrinos", level_gridID=(level,gridID))
             
             number_of_particles=number_of_particles+len(rdata_given)
@@ -228,7 +228,7 @@ def writehdf5files(dire):
 
         #this keys will be used to compute the average of all the components of the density matrices
         keys_for_average=[['f00_Re'], ['f01_Re', 'f01_Im'], ['f02_Re', 'f02_Im'], ['f11_Re'], ['f12_Re', 'f12_Im'] ,['f22_Re'], ['f00_Rebar'], ['f01_Rebar', 'f01_Imbar'], ['f02_Rebar', 'f02_Imbar'],['f11_Rebar'],['f12_Rebar' ,'f12_Imbar'],['f22_Rebar']]
-
+        #keys_for_average=[['f00_Re'], ['f01_Re', 'f01_Im'], ['f11_Re'], ['f00_Rebar'], ['f01_Rebar', 'f01_Imbar'], ['f11_Rebar']]
         #loogping over all the keys
         for key in keys_for_average:
             
@@ -244,7 +244,7 @@ def writehdf5files(dire):
 
         #this keys will be used to compute the state space diference vector magnitud
         keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
-
+        #keys=['f00_Re', 'f01_Re', 'f01_Im', 'f11_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f11_Rebar']
         ssmag_per=0
         ssmag_ori=0
         ssdiff=0
