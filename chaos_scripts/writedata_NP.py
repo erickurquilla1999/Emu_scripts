@@ -254,30 +254,69 @@ def writehdf5files(dire):
 
             countforNorNbar=countforNorNbar+1
 
+        # defining gell-man matrices
+        gm1 = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 0]])
+        gm2 = np.array([[0, -1j, 0], [1j, 0, 0], [0, 0, 0]])
+        gm3 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, 0]])
+        gm4 = np.array([[0, 0, 1], [0, 0, 0], [1, 0, 0]])
+        gm5 = np.array([[0, 0, -1j], [0, 0, 0], [1j, 0, 0]])
+        gm6 = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0]])
+        gm7 = np.array([[0, 0, 0], [0, 0, -1j], [0, 1j, 0]])
+        gm8 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, -2]]) / np.sqrt(3)
+
+        GM=np.array([gm1,gm2,gm3,gm4,gm5,gm6,gm7,gm8])
+
+        rho_given=np.array([[data_given[:,rkey['f00_Re']],data_given[:,rkey['f01_Re']]+np.array(+1j)*data_given[:,rkey['f01_Im']],data_given[:,rkey['f02_Re']]+np.array(+1j)*data_given[:,rkey['f02_Im']]],[data_given[:,rkey['f01_Re']]+np.array(-1j)*data_given[:,rkey['f01_Im']],data_given[:,rkey['f11_Re']],data_given[:,rkey['f12_Re']]+np.array(+1j)*data_given[:,rkey['f12_Im']]],[data_given[:,rkey['f02_Re']]+np.array(-1j)*data_given[:,rkey['f02_Im']],data_given[:,rkey['f12_Re']]+np.array(-1j)*data_given[:,rkey['f12_Im']],data_given[:,rkey['f22_Re']]]])
+        rhobar_given=np.array([[data_given[:,rkey['f00_Rebar']],data_given[:,rkey['f01_Rebar']]+np.array(+1j)*data_given[:,rkey['f01_Imbar']],data_given[:,rkey['f02_Rebar']]+np.array(+1j)*data_given[:,rkey['f02_Imbar']]],[data_given[:,rkey['f01_Rebar']]+np.array(-1j)*data_given[:,rkey['f01_Imbar']],data_given[:,rkey['f11_Rebar']],data_given[:,rkey['f12_Rebar']]+np.array(+1j)*data_given[:,rkey['f12_Imbar']]],[data_given[:,rkey['f02_Rebar']]+np.array(-1j)*data_given[:,rkey['f02_Imbar']],data_given[:,rkey['f12_Rebar']]+np.array(-1j)*data_given[:,rkey['f12_Imbar']],data_given[:,rkey['f22_Rebar']]]])
+        rho_per=np.array([[data_per[:,rkey['f00_Re']],data_per[:,rkey['f01_Re']]+np.array(+1j)*data_per[:,rkey['f01_Im']],data_per[:,rkey['f02_Re']]+np.array(+1j)*data_per[:,rkey['f02_Im']]],[data_per[:,rkey['f01_Re']]+np.array(-1j)*data_per[:,rkey['f01_Im']],data_per[:,rkey['f11_Re']],data_per[:,rkey['f12_Re']]+np.array(+1j)*data_per[:,rkey['f12_Im']]],[data_per[:,rkey['f02_Re']]+np.array(-1j)*data_per[:,rkey['f02_Im']],data_per[:,rkey['f12_Re']]+np.array(-1j)*data_per[:,rkey['f12_Im']],data_per[:,rkey['f22_Re']]]])
+        rhobar_per=np.array([[data_per[:,rkey['f00_Rebar']],data_per[:,rkey['f01_Rebar']]+np.array(+1j)*data_per[:,rkey['f01_Imbar']],data_per[:,rkey['f02_Rebar']]+np.array(+1j)*data_per[:,rkey['f02_Imbar']]],[data_per[:,rkey['f01_Rebar']]+np.array(-1j)*data_per[:,rkey['f01_Imbar']],data_per[:,rkey['f11_Rebar']],data_per[:,rkey['f12_Rebar']]+np.array(+1j)*data_per[:,rkey['f12_Imbar']]],[data_per[:,rkey['f02_Rebar']]+np.array(-1j)*data_per[:,rkey['f02_Imbar']],data_per[:,rkey['f12_Rebar']]+np.array(-1j)*data_per[:,rkey['f12_Imbar']],data_per[:,rkey['f22_Rebar']]]])
+
+        # computing polarization vectors
+        P_given=[]
+        Pbar_given=[]
+        P_per=[]
+        Pbar_per=[]
+
+        for gm in GM:
+
+            Pi_given=0
+            Pbari_given=0
+            Pi_per=0
+            Pbari_per=0            
+
+            for m in [0,1,2]:
+                for n in [0,1,2]:
+                    Pi_given=Pi_given+rho_given[m][n]*gm[m][n]
+                    Pbari_given=Pbari_given+rhobar_given[m][n]*gm[m][n]
+                    Pi_per=Pi_per+rho_per[m][n]*gm[m][n]
+                    Pbari_per=Pbari_per+rhobar_per[m][n]*gm[m][n]
+
+                P_given.append(np.real(Pi_given))
+                Pbar_given.append(np.real(Pbari_given))
+                P_per.append(np.real(Pi_per))
+                Pbar_per.append(np.real(Pbari_per))
+
+        del rho_given
+        del rhobar_given
+        del rho_per
+        del rhobar_per
+
         #this keys will be used to compute the state space diference vector magnitud
-        keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+        # keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
         #keys=['f00_Re', 'f01_Re', 'f01_Im', 'f11_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f11_Rebar']
         ssmag_per=0
         ssmag_ori=0
         ssdiff=0
 
         #count the index of the array keys in the next loop
-        countforNorNbar=0
+        # countforNorNbar=0
 
         #computing the state space diference vector magnitud
-        for key in keys:
+        for h in range(8):
             
-            # determine what key use if N for number of neutrino or Nbar for number of antineutrinos
-            if countforNorNbar<=8:
-                NorNbarKey='N'
-            if countforNorNbar>8:
-                NorNbarKey='Nbar'
-
-            ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey[NorNbarKey]]*data_per[:,rkey[key]]))
-            ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey[NorNbarKey]]*data_given[:,rkey[key]]))
-            ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey[NorNbarKey]]*data_per[:,rkey[key]]-data_given[:,rkey[NorNbarKey]]*data_given[:,rkey[key]]))
-
-            countforNorNbar=countforNorNbar+1
+            ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*P_given[h]))+np.sum(np.square(data_given[:,rkey['Nbar']]*Pbar_given[h]))
+            ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*P_per[h]))+np.sum(np.square(data_per[:,rkey['Nbar']]*Pbar_per[h]))
+            ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey['N']]*P_per[h]-data_given[:,rkey['N']]*P_given[h]))+np.sum(np.square(data_per[:,rkey['Nbar']]*Pbar_per[h]-data_given[:,rkey['Nbar']]*Pbar_given[h]))
 
         hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
         hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
@@ -291,6 +330,11 @@ def writehdf5files(dire):
         del ssmag_per
         del ssmag_ori
         del ssdiff
+        
+        del P_given
+        del Pbar_given
+        del P_per
+        del Pbar_per
 
     #########################################################################
     # do average
