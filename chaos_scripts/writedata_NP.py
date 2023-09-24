@@ -254,74 +254,158 @@ def writehdf5files(dire):
 
             countforNorNbar=countforNorNbar+1
 
-        # defining gell-man matrices
-        gm1 = np.array([[0, 1, 0], [1, 0, 0], [0, 0, 0]])
-        gm2 = np.array([[0, -1j, 0], [1j, 0, 0], [0, 0, 0]])
-        gm3 = np.array([[1, 0, 0], [0, -1, 0], [0, 0, 0]])
-        gm4 = np.array([[0, 0, 1], [0, 0, 0], [1, 0, 0]])
-        gm5 = np.array([[0, 0, -1j], [0, 0, 0], [1j, 0, 0]])
-        gm6 = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0]])
-        gm7 = np.array([[0, 0, 0], [0, 0, -1j], [0, 1j, 0]])
-        gm8 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, -2]])/np.sqrt(3)
-
-        GM=np.array([gm1,gm2,gm3,gm4,gm5,gm6,gm7,gm8])
-
-        rho_given=np.array([[data_given[:,rkey['f00_Re']],data_given[:,rkey['f01_Re']]+np.array(+1j)*data_given[:,rkey['f01_Im']],data_given[:,rkey['f02_Re']]+np.array(+1j)*data_given[:,rkey['f02_Im']]],[data_given[:,rkey['f01_Re']]+np.array(-1j)*data_given[:,rkey['f01_Im']],data_given[:,rkey['f11_Re']],data_given[:,rkey['f12_Re']]+np.array(+1j)*data_given[:,rkey['f12_Im']]],[data_given[:,rkey['f02_Re']]+np.array(-1j)*data_given[:,rkey['f02_Im']],data_given[:,rkey['f12_Re']]+np.array(-1j)*data_given[:,rkey['f12_Im']],data_given[:,rkey['f22_Re']]]])
-        rhobar_given=np.array([[data_given[:,rkey['f00_Rebar']],data_given[:,rkey['f01_Rebar']]+np.array(+1j)*data_given[:,rkey['f01_Imbar']],data_given[:,rkey['f02_Rebar']]+np.array(+1j)*data_given[:,rkey['f02_Imbar']]],[data_given[:,rkey['f01_Rebar']]+np.array(-1j)*data_given[:,rkey['f01_Imbar']],data_given[:,rkey['f11_Rebar']],data_given[:,rkey['f12_Rebar']]+np.array(+1j)*data_given[:,rkey['f12_Imbar']]],[data_given[:,rkey['f02_Rebar']]+np.array(-1j)*data_given[:,rkey['f02_Imbar']],data_given[:,rkey['f12_Rebar']]+np.array(-1j)*data_given[:,rkey['f12_Imbar']],data_given[:,rkey['f22_Rebar']]]])
-        rho_per=np.array([[data_per[:,rkey['f00_Re']],data_per[:,rkey['f01_Re']]+np.array(+1j)*data_per[:,rkey['f01_Im']],data_per[:,rkey['f02_Re']]+np.array(+1j)*data_per[:,rkey['f02_Im']]],[data_per[:,rkey['f01_Re']]+np.array(-1j)*data_per[:,rkey['f01_Im']],data_per[:,rkey['f11_Re']],data_per[:,rkey['f12_Re']]+np.array(+1j)*data_per[:,rkey['f12_Im']]],[data_per[:,rkey['f02_Re']]+np.array(-1j)*data_per[:,rkey['f02_Im']],data_per[:,rkey['f12_Re']]+np.array(-1j)*data_per[:,rkey['f12_Im']],data_per[:,rkey['f22_Re']]]])
-        rhobar_per=np.array([[data_per[:,rkey['f00_Rebar']],data_per[:,rkey['f01_Rebar']]+np.array(+1j)*data_per[:,rkey['f01_Imbar']],data_per[:,rkey['f02_Rebar']]+np.array(+1j)*data_per[:,rkey['f02_Imbar']]],[data_per[:,rkey['f01_Rebar']]+np.array(-1j)*data_per[:,rkey['f01_Imbar']],data_per[:,rkey['f11_Rebar']],data_per[:,rkey['f12_Rebar']]+np.array(+1j)*data_per[:,rkey['f12_Imbar']]],[data_per[:,rkey['f02_Rebar']]+np.array(-1j)*data_per[:,rkey['f02_Imbar']],data_per[:,rkey['f12_Rebar']]+np.array(-1j)*data_per[:,rkey['f12_Imbar']],data_per[:,rkey['f22_Rebar']]]])
-
-        # computing polarization vectors
-        P_given=[]
-        Pbar_given=[]
-        P_per=[]
-        Pbar_per=[]
-
-        for gm in GM:
-
-            Pi_given=0
-            Pbari_given=0
-            Pi_per=0
-            Pbari_per=0            
-
-            for m in [0,1,2]:
-                for n in [0,1,2]:
-                    Pi_given=Pi_given+rho_given[m][n]*gm[n][m]
-                    Pbari_given=Pbari_given+rhobar_given[m][n]*gm[n][m]
-                    Pi_per=Pi_per+rho_per[m][n]*gm[n][m]
-                    Pbari_per=Pbari_per+rhobar_per[m][n]*gm[n][m]
-
-            P_given.append(np.array(0.5)*(Pi_given))
-            Pbar_given.append(np.array(0.5)*(Pbari_given))
-            P_per.append(np.array(0.5)*(Pi_per))
-            Pbar_per.append(np.array(0.5)*(Pbari_per))
-
-        del rho_given
-        del rhobar_given
-        del rho_per
-        del rhobar_per
-
         #this keys will be used to compute the state space diference vector magnitud
-        # keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+        keys=['f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
         #keys=['f00_Re', 'f01_Re', 'f01_Im', 'f11_Re', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f11_Rebar']
-        ssmag_per=0
-        ssmag_ori=0
+       
         ssdiff=0
 
-        #count the index of the array keys in the next loop
-        # countforNorNbar=0
+        ssdiff=ssdiff+np.array(1/3)*np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f00_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f00_Re']]))
+        ssdiff=ssdiff+np.array(1/3)*np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f11_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f11_Re']]))
+        ssdiff=ssdiff+np.array(1/3)*np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f22_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f22_Re']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f01_Re']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f02_Re']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f12_Re']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Im']]-data_per[:,rkey['N']]*data_per[:,rkey['f01_Im']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Im']]-data_per[:,rkey['N']]*data_per[:,rkey['f02_Im']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Im']]-data_per[:,rkey['N']]*data_per[:,rkey['f12_Im']]))
+        ssdiff=ssdiff+np.array(-1/3)*np.sum((data_given[:,rkey['N']]*data_given[:,rkey['f00_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f00_Re']])*(data_given[:,rkey['N']]*data_given[:,rkey['f11_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f11_Re']]))
+        ssdiff=ssdiff+np.array(-1/3)*np.sum((data_given[:,rkey['N']]*data_given[:,rkey['f00_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f00_Re']])*(data_given[:,rkey['N']]*data_given[:,rkey['f22_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f22_Re']]))
+        ssdiff=ssdiff+np.array(-1/3)*np.sum((data_given[:,rkey['N']]*data_given[:,rkey['f11_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f11_Re']])*(data_given[:,rkey['N']]*data_given[:,rkey['f22_Re']]-data_per[:,rkey['N']]*data_per[:,rkey['f22_Re']]))
 
-        #computing the state space diference vector magnitud
-        for h in range(8):
-            
-            ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*P_given[h]))+np.sum(np.square(data_given[:,rkey['Nbar']]*Pbar_given[h]))
-            ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*P_per[h]))+np.sum(np.square(data_per[:,rkey['Nbar']]*Pbar_per[h]))
-            ssdiff=ssdiff+np.sum(np.square(data_per[:,rkey['N']]*P_per[h]-data_given[:,rkey['N']]*P_given[h]))+np.sum(np.square(data_per[:,rkey['Nbar']]*Pbar_per[h]-data_given[:,rkey['Nbar']]*Pbar_given[h]))
+        ssdiff=ssdiff+np.array(1/3)*np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f00_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f00_Rebar']]))
+        ssdiff=ssdiff+np.array(1/3)*np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f11_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f11_Rebar']]))
+        ssdiff=ssdiff+np.array(1/3)*np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f22_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f22_Rebar']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Rebar']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Rebar']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Rebar']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Imbar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Imbar']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Imbar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Imbar']]))
+        ssdiff=ssdiff+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Imbar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Imbar']]))
+        ssdiff=ssdiff+np.array(-1/3)*np.sum((data_given[:,rkey['Nbar']]*data_given[:,rkey['f00_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f00_Rebar']])*(data_given[:,rkey['Nbar']]*data_given[:,rkey['f11_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f11_Rebar']]))
+        ssdiff=ssdiff+np.array(-1/3)*np.sum((data_given[:,rkey['Nbar']]*data_given[:,rkey['f00_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f00_Rebar']])*(data_given[:,rkey['Nbar']]*data_given[:,rkey['f22_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f22_Rebar']]))
+        ssdiff=ssdiff+np.array(-1/3)*np.sum((data_given[:,rkey['Nbar']]*data_given[:,rkey['f11_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f11_Rebar']])*(data_given[:,rkey['Nbar']]*data_given[:,rkey['f22_Rebar']]-data_per[:,rkey['Nbar']]*data_per[:,rkey['f22_Rebar']]))
 
-        hf.create_dataset('difference_state_space_vector_magnitud', data=np.sqrt(ssdiff))
-        hf.create_dataset('state_space_vector_magnitud_per', data=np.sqrt(ssmag_per))
-        hf.create_dataset('state_space_vector_magnitud_given', data=np.sqrt(ssmag_ori))
+        ssdiff=np.sqrt(ssdiff)
 
+        ssmag_per=0
+
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f01_Re']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f01_Im']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f02_Re']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f02_Im']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f12_Re']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f12_Im']]))
+        ssmag_per=ssmag_per+np.square(1/2)*np.sum(np.square(data_per[:,rkey['N']]*(data_per[:,rkey['f00_Re']]-data_per[:,rkey['f11_Re']])))
+        ssmag_per=ssmag_per+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_per[:,rkey['N']]*(data_per[:,rkey['f00_Re']]+data_per[:,rkey['f11_Re']]-np.array(2)*data_per[:,rkey['f22_Re']])))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Rebar']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Imbar']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Rebar']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Imbar']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Rebar']]))
+        ssmag_per=ssmag_per+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Imbar']]))
+        ssmag_per=ssmag_per+np.square(1/2)*np.sum(np.square(data_per[:,rkey['Nbar']]*(data_per[:,rkey['f00_Rebar']]-data_per[:,rkey['f11_Rebar']])))
+        ssmag_per=ssmag_per+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_per[:,rkey['Nbar']]*(data_per[:,rkey['f00_Rebar']]+data_per[:,rkey['f11_Rebar']]-np.array(2)*data_per[:,rkey['f22_Rebar']])))
+        ssmag_per=np.sqrt(ssmag_per)
+
+        ssmag_ori=0
+
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Re']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Im']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Re']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Im']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Re']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Im']]))
+        ssmag_ori=ssmag_ori+np.square(1/2)*np.sum(np.square(data_given[:,rkey['N']]*(data_given[:,rkey['f00_Re']]-data_given[:,rkey['f11_Re']])))
+        ssmag_ori=ssmag_ori+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_given[:,rkey['N']]*(data_given[:,rkey['f00_Re']]+data_given[:,rkey['f11_Re']]-np.array(2)*data_given[:,rkey['f22_Re']])))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Rebar']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Imbar']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Rebar']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Imbar']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Rebar']]))
+        ssmag_ori=ssmag_ori+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Imbar']]))
+        ssmag_ori=ssmag_ori+np.square(1/2)*np.sum(np.square(data_given[:,rkey['Nbar']]*(data_given[:,rkey['f00_Rebar']]-data_given[:,rkey['f11_Rebar']])))
+        ssmag_ori=ssmag_ori+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_given[:,rkey['Nbar']]*(data_given[:,rkey['f00_Rebar']]+data_given[:,rkey['f11_Rebar']]-np.array(2)*data_given[:,rkey['f22_Rebar']])))
+        ssmag_ori=np.sqrt(ssmag_ori)
+
+        ssdiff_unitary=0
+
+        ssdiff_unitary=ssdiff_unitary+np.array(1/3)*np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f00_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f00_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(1/3)*np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f11_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f11_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(1/3)*np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f22_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f22_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f01_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f02_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f12_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Im']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f01_Im']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Im']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f02_Im']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Im']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f12_Im']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(-1/3)*np.sum((data_given[:,rkey['N']]*data_given[:,rkey['f00_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f00_Re']]/np.array(ssmag_per))*(data_given[:,rkey['N']]*data_given[:,rkey['f11_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f11_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(-1/3)*np.sum((data_given[:,rkey['N']]*data_given[:,rkey['f00_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f00_Re']]/np.array(ssmag_per))*(data_given[:,rkey['N']]*data_given[:,rkey['f22_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f22_Re']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(-1/3)*np.sum((data_given[:,rkey['N']]*data_given[:,rkey['f11_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f11_Re']]/np.array(ssmag_per))*(data_given[:,rkey['N']]*data_given[:,rkey['f22_Re']]/np.array(ssmag_ori)-data_per[:,rkey['N']]*data_per[:,rkey['f22_Re']]/np.array(ssmag_per)))
+
+        ssdiff_unitary=ssdiff_unitary+np.array(1/3)*np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f00_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f00_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(1/3)*np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f11_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f11_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(1/3)*np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f22_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f22_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Imbar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Imbar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Imbar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Imbar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Imbar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Imbar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(-1/3)*np.sum((data_given[:,rkey['Nbar']]*data_given[:,rkey['f00_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f00_Rebar']]/np.array(ssmag_per))*(data_given[:,rkey['Nbar']]*data_given[:,rkey['f11_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f11_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(-1/3)*np.sum((data_given[:,rkey['Nbar']]*data_given[:,rkey['f00_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f00_Rebar']]/np.array(ssmag_per))*(data_given[:,rkey['Nbar']]*data_given[:,rkey['f22_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f22_Rebar']]/np.array(ssmag_per)))
+        ssdiff_unitary=ssdiff_unitary+np.array(-1/3)*np.sum((data_given[:,rkey['Nbar']]*data_given[:,rkey['f11_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f11_Rebar']]/np.array(ssmag_per))*(data_given[:,rkey['Nbar']]*data_given[:,rkey['f22_Rebar']]/np.array(ssmag_ori)-data_per[:,rkey['Nbar']]*data_per[:,rkey['f22_Rebar']]/np.array(ssmag_per)))
+
+        ssdiff_unitary=np.sqrt(ssdiff_unitary)
+
+        ssmag_per_unitary=0
+
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f01_Re']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f01_Im']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f02_Re']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f02_Im']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f12_Re']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['N']]*data_per[:,rkey['f12_Im']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.square(1/2)*np.sum(np.square(data_per[:,rkey['N']]*(data_per[:,rkey['f00_Re']]-data_per[:,rkey['f11_Re']])/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_per[:,rkey['N']]*(data_per[:,rkey['f00_Re']]+data_per[:,rkey['f11_Re']]-np.array(2)*data_per[:,rkey['f22_Re']])/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Rebar']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f01_Imbar']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Rebar']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f02_Imbar']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Rebar']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.sum(np.square(data_per[:,rkey['Nbar']]*data_per[:,rkey['f12_Imbar']]/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.square(1/2)*np.sum(np.square(data_per[:,rkey['Nbar']]*(data_per[:,rkey['f00_Rebar']]-data_per[:,rkey['f11_Rebar']])/np.array(ssmag_per)))
+        ssmag_per_unitary=ssmag_per_unitary+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_per[:,rkey['Nbar']]*(data_per[:,rkey['f00_Rebar']]+data_per[:,rkey['f11_Rebar']]-np.array(2)*data_per[:,rkey['f22_Rebar']])/np.array(ssmag_per)))
+        ssmag_per_unitary=np.sqrt(ssmag_per_unitary)
+
+        ssmag_ori_unitary=0
+
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Re']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f01_Im']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Re']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f02_Im']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Re']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['N']]*data_given[:,rkey['f12_Im']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.square(1/2)*np.sum(np.square(data_given[:,rkey['N']]*(data_given[:,rkey['f00_Re']]-data_given[:,rkey['f11_Re']])/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_given[:,rkey['N']]*(data_given[:,rkey['f00_Re']]+data_given[:,rkey['f11_Re']]-np.array(2)*data_given[:,rkey['f22_Re']])/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Rebar']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f01_Imbar']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Rebar']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f02_Imbar']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Rebar']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.sum(np.square(data_given[:,rkey['Nbar']]*data_given[:,rkey['f12_Imbar']]/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.square(1/2)*np.sum(np.square(data_given[:,rkey['Nbar']]*(data_given[:,rkey['f00_Rebar']]-data_given[:,rkey['f11_Rebar']])/np.array(ssmag_ori)))
+        ssmag_ori_unitary=ssmag_ori_unitary+np.square(1/(2*np.sqrt(3)))*np.sum(np.square(data_given[:,rkey['Nbar']]*(data_given[:,rkey['f00_Rebar']]+data_given[:,rkey['f11_Rebar']]-np.array(2)*data_given[:,rkey['f22_Rebar']])/np.array(ssmag_ori)))
+        ssmag_ori_unitary=np.sqrt(ssmag_ori_unitary)
+
+        hf.create_dataset('difference_state_space_vector_magnitud', data=ssdiff)
+        hf.create_dataset('state_space_vector_magnitud_per', data=ssmag_per)
+        hf.create_dataset('state_space_vector_magnitud_given', data=ssmag_ori)
+
+        hf.create_dataset('difference_state_space_vector_magnitud_unitary', data=ssdiff_unitary)
+        hf.create_dataset('state_space_vector_magnitud_per_unitary', data=ssmag_per_unitary)
+        hf.create_dataset('state_space_vector_magnitud_given_unitary', data=ssmag_ori_unitary)
+        
         hf.close()
         
         # deleting the data to save memory
@@ -330,12 +414,10 @@ def writehdf5files(dire):
         del ssmag_per
         del ssmag_ori
         del ssdiff
+        del ssmag_per_unitary
+        del ssmag_ori_unitary
+        del ssdiff_unitary
         
-        del P_given
-        del Pbar_given
-        del P_per
-        del Pbar_per
-
     #########################################################################
     # do average
     #########################################################################
