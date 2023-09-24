@@ -262,7 +262,7 @@ def writehdf5files(dire):
         gm5 = np.array([[0, 0, -1j], [0, 0, 0], [1j, 0, 0]])
         gm6 = np.array([[0, 0, 0], [0, 0, 1], [0, 1, 0]])
         gm7 = np.array([[0, 0, 0], [0, 0, -1j], [0, 1j, 0]])
-        gm8 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, -2]]) / np.sqrt(3)
+        gm8 = np.array([[1, 0, 0], [0, 1, 0], [0, 0, -2]])/np.sqrt(3)
 
         GM=np.array([gm1,gm2,gm3,gm4,gm5,gm6,gm7,gm8])
 
@@ -286,15 +286,15 @@ def writehdf5files(dire):
 
             for m in [0,1,2]:
                 for n in [0,1,2]:
-                    Pi_given=Pi_given+rho_given[m][n]*gm[m][n]
-                    Pbari_given=Pbari_given+rhobar_given[m][n]*gm[m][n]
-                    Pi_per=Pi_per+rho_per[m][n]*gm[m][n]
-                    Pbari_per=Pbari_per+rhobar_per[m][n]*gm[m][n]
+                    Pi_given=Pi_given+rho_given[m][n]*gm[n][m]
+                    Pbari_given=Pbari_given+rhobar_given[m][n]*gm[n][m]
+                    Pi_per=Pi_per+rho_per[m][n]*gm[n][m]
+                    Pbari_per=Pbari_per+rhobar_per[m][n]*gm[n][m]
 
-                P_given.append(np.real(Pi_given))
-                Pbar_given.append(np.real(Pbari_given))
-                P_per.append(np.real(Pi_per))
-                Pbar_per.append(np.real(Pbari_per))
+            P_given.append(np.array(0.5)*(Pi_given))
+            Pbar_given.append(np.array(0.5)*(Pbari_given))
+            P_per.append(np.array(0.5)*(Pi_per))
+            Pbar_per.append(np.array(0.5)*(Pbari_per))
 
         del rho_given
         del rhobar_given
