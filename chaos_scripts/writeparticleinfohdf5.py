@@ -20,7 +20,7 @@ import scipy.special
 ##########
 # INPUTS #
 ##########
-nproc = 16
+nproc = 1
 
 dirh5 = sorted(glob.glob("*.h5"))
 dirh5 = [dirh5[i].split('.')[0] for i in range(len(dirh5))]
@@ -43,10 +43,10 @@ eds = emu.EmuDataset(directories[0])
 NF = eds.get_num_flavors()
 if NF==2:
     rkey, ikey = amrex.get_particle_keys()
-    labels=['pos_x','pos_y','pos_z', 'time', 'x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re', 'f01_Re', 'f01_Im', 'f11_Re', 'Nbar', 'Lbar', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f11_Rebar']
+    labels=['pos_x','pos_y','pos_z', 'time', 'x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N00_Re', 'N01_Re', 'N01_Im', 'N11_Re', 'N00_Rebar', 'N01_Rebar', 'N01_Imbar', 'N11_Rebar']
 if NF==3:
     rkey, ikey = amrex.get_3flavor_particle_keys()
-    labels=['pos_x','pos_y','pos_z','time','x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N', 'L', 'f00_Re', 'f01_Re', 'f01_Im', 'f02_Re', 'f02_Im', 'f11_Re', 'f12_Re', 'f12_Im' ,'f22_Re', 'Nbar' ,'Lbar', 'f00_Rebar', 'f01_Rebar', 'f01_Imbar', 'f02_Rebar', 'f02_Imbar', 'f11_Rebar', 'f12_Rebar' ,'f12_Imbar', 'f22_Rebar']
+    labels=['pos_x','pos_y','pos_z','time','x', 'y', 'z', 'pupx', 'pupy', 'pupz', 'pupt', 'N00_Re', 'N01_Re', 'N01_Im', 'N02_Re', 'N02_Im', 'N11_Re', 'N12_Re', 'N12_Im' ,'N22_Re', 'N00_Rebar', 'N01_Rebar', 'N01_Imbar', 'N02_Rebar', 'N02_Imbar', 'N11_Rebar', 'N12_Rebar' ,'N12_Imbar', 'N22_Rebar']
 
 class GridData(object):
     def __init__(self, ad):
