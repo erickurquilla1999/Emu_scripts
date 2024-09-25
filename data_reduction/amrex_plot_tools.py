@@ -28,8 +28,9 @@ def get_particle_keys():
                        "N00_Rebar",
                        "N01_Rebar",
                        "N01_Imbar",
-                       "N11_Rebar"]
-
+                       "N11_Rebar",
+                           "TrHN",
+                           "Vphase"]
     rkey = {}
     for i, rlabel in enumerate(real_quantities):
         rkey[rlabel] = i
@@ -69,8 +70,9 @@ def get_3flavor_particle_keys():
                        "N11_Rebar",
                        "N12_Rebar",
                        "N12_Imbar",
-                       "N22_Rebar"]
-
+                       "N22_Rebar",
+                           "TrHN",
+                           "Vphase"]
     rkey = {}
     for i, rlabel in enumerate(real_quantities):
         rkey[rlabel] = i
